@@ -1,0 +1,20 @@
+[project]
+name = "asec-skills"
+version = "0.1.0"
+requires-python = ">=3.13"
+description = "SKILL.md loader + deny-by-default PreToolUse permission gate."
+dependencies = [
+    "asec-core",
+    "pydantic>=2.7",
+    "pyyaml",
+    "structlog",
+    "opentelemetry-api",
+    "claude-agent-sdk",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/asec_skills"]

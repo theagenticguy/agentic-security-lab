@@ -1,0 +1,46 @@
+[project]
+name = "agentic-security-lab"
+version = "0.1.0"
+requires-python = ">=3.13"
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/*", "infra/cdk"]
+
+[tool.uv.sources]
+asec-core         = { workspace = true }
+asec-sandbox      = { workspace = true }
+asec-memory       = { workspace = true }
+asec-skills       = { workspace = true }
+asec-threat-model = { workspace = true }
+asec-confidence   = { workspace = true }
+
+[dependency-groups]
+dev = ["pytest", "pytest-asyncio", "pytest-cov", "hypothesis",
+       "atheris", "pyright", "ruff", "commitizen"]
+# NOTE: osv-scanner is a standalone Go binary (installed via mise/trivy), not on PyPI.
+security = ["bandit", "pip-audit", "checkov"]
+
+[tool.ruff]
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_files = ["pyproject.toml:version"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages", "apps"]
+# importlib mode lets identically-named test modules (test_smoke.py) coexist across
+# the workspace without package-name collisions.
+addopts = "-q --cov-report=term --cov-report=xml --import-mode=importlib"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["packages", "apps"]

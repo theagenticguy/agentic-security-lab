@@ -1,0 +1,53 @@
+[tools]
+python = "3.13"
+uv     = "latest"
+node   = "22"          # docs only
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+CLAUDE_CODE_USE_BEDROCK = "1"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "global.anthropic.claude-opus-4-8"
+
+[tasks.install]
+run = "uv sync --all-packages"
+
+[tasks.dev]
+run = "uv run pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo"
+
+[tasks.test]
+run = "uv run pytest"
+
+[tasks.lint]
+run = "uv run ruff check ."
+
+[tasks.format]
+run = "uv run ruff format ."
+
+[tasks.typecheck]
+run = "uv run pyright"
+
+[tasks."security:scan"]
+run = ["uv run bandit -r packages apps", "uv run pip-audit", "trivy fs ."]
+
+[tasks."security:gitleaks"]
+run = "gitleaks detect --no-banner"
+
+[tasks."cdk:synth"]
+run = "uv run --package infra-cdk cdk synth"
+
+[tasks."cdk:nag"]
+run = ["uv run --package infra-cdk cdk synth", "uv run checkov -d infra/cdk/cdk.out"]
+
+[tasks."docs:dev"]
+dir = "docs"
+run = "pnpm dev"
+
+[tasks."docs:build"]
+dir = "docs"
+run = "pnpm build"
+
+[tasks."docs:sync"]
+run = "uv run python scripts/sync_adrs.py"
+
+[tasks."release:bump"]
+run = "uv run cz bump --changelog"

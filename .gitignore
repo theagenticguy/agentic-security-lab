@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+.installed.cfg
+wheels/
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# uv
+.uv/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+.tox/
+nosetests.xml
+
+# Type checkers / linters
+.pyright/
+.ruff_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+.npm/
+
+# Astro / Starlight
+docs/.astro/
+docs/dist/
+docs/.vercel/
+
+# CDK
+infra/cdk/cdk.out/
+cdk.out/
+.cdk.staging/
+cdk.context.json
+
+# Experiments scratch outputs
+experiments/**/outputs/
+experiments/**/*.log
+
+# Local secrets / env
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.\#*

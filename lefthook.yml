@@ -1,0 +1,26 @@
+pre-commit:
+  parallel: true
+  commands:
+    ruff-check:
+      glob: "*.py"
+      run: uv run ruff check --fix {staged_files}
+      stage_fixed: true
+    ruff-format:
+      glob: "*.py"
+      run: uv run ruff format {staged_files}
+      stage_fixed: true
+    pyright:
+      glob: "*.py"
+      run: uv run pyright {staged_files}
+    gitleaks:
+      run: gitleaks protect --staged --no-banner
+
+commit-msg:
+  commands:
+    commitizen:
+      run: uv run cz check --commit-msg-file {1}
+
+pre-push:
+  commands:
+    pytest:
+      run: uv run pytest -x -q
