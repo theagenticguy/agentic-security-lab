@@ -1,0 +1,53 @@
+---
+title: agentic-security-lab
+description: The trustworthy substrate for an autonomous security-research agent.
+template: splash
+hero:
+  tagline: Eight foundations, six packages, one closed verification loop.
+  actions:
+    - text: Get started
+      link: /agentic-security-lab/guides/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: Read the substrate concept
+      link: /agentic-security-lab/concepts/substrate/
+      icon: open-book
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+This lab builds the **substrate** — not the product — that lets a Claude Opus 4.8
+agent (Bedrock, `global.anthropic.claude-opus-4-8`) read code semantically, run
+experiments in a closed sandbox, and verify hypotheses in a loop. The substrate must be
+*trustworthy first* so the fuzzy audit content can be iterated safely on top of it.
+
+Two invariants govern everything:
+
+- **E3** — every target-code experiment runs inside a throwaway sandbox launched with
+  `--network=none` by default.
+- **E12** — every tool call, sandbox lifecycle event, and gate decision appends to a
+  hash-chained WORM audit log (S3 Object Lock or `chattr +a`).
+
+<CardGrid stagger>
+  <Card title="Concepts" icon="puzzle">
+    The eight-foundations → six-packages model, the EARS invariants each package owns,
+    and the lifecycle modes (v1 is PR-only).
+    [Read concepts](/agentic-security-lab/concepts/substrate/)
+  </Card>
+  <Card title="Guides" icon="rocket">
+    Clone, install with mise, run the tests, and run the one E2E app.
+    [Read guides](/agentic-security-lab/guides/getting-started/)
+  </Card>
+  <Card title="Packages" icon="open-book">
+    One page per `asec-*` package: purpose, public types, EARS invariants.
+    [Browse packages](/agentic-security-lab/packages/)
+  </Card>
+  <Card title="ADRs" icon="approve-check">
+    Architecture decisions — source-of-truth in `/adr`, mirrored read-only here.
+    [Browse ADRs](/agentic-security-lab/adrs/)
+  </Card>
+  <Card title="Reference" icon="setting">
+    CLI, sandbox configs (the key page for engineers), and settings.
+    [Browse reference](/agentic-security-lab/reference/sandbox-configs/)
+  </Card>
+</CardGrid>

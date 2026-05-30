@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Python dependencies (uv ecosystem) — daily.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "build(deps)"
+
+  # GitHub Actions — weekly. Keeps pinned SHAs current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci(deps)"
+
+  # Docs (Astro Starlight) npm deps — weekly, isolated to /docs.
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "build(docs-deps)"

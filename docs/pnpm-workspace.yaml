@@ -1,0 +1,3 @@
+# Intentionally empty so pnpm treats docs/ as an isolated workspace root
+# and does not traverse into the parent uv/Python workspace.
+packages: []

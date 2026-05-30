@@ -1,0 +1,75 @@
+# ──────────────────────────────────────────────────────────────
+# CDK Nag — synth + assert no un-suppressed findings remain
+# ──────────────────────────────────────────────────────────────
+# Synthesizes the CDK app, then verifies cdk.out has no
+# un-suppressed CDK Nag findings. Uploads the Nag report.
+# All third-party actions are pinned by commit SHA.
+# ──────────────────────────────────────────────────────────────
+name: CDK Nag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/cdk-nag.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/cdk-nag.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cdk-nag:
+    name: Synth + CDK Nag
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Install mise
+        uses: jdx/mise-action@5cb1df66ed5e1fb3c119e7b0c6aef60c80e92000 # v3
+        with:
+          install: true
+          cache: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6
+        with:
+          enable-cache: true
+
+      - name: Setup Node (CDK CLI)
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version: 22
+
+      - name: Sync workspace
+        run: uv sync --locked
+
+      - name: CDK synth
+        run: mise run cdk:synth
+
+      - name: Assert no un-suppressed CDK Nag findings
+        run: |
+          # CDK Nag annotations land in cdk.out as AwsSolutions-* metadata.
+          # Any un-suppressed Error-level finding fails the gate. Encryption
+          # and public-access rules may never be suppressed (PLAN §7).
+          if grep -rlE "AwsSolutions-[A-Z0-9]+.*\[Error\]" infra/cdk/cdk.out 2>/dev/null; then
+            echo "::error::Un-suppressed CDK Nag findings remain in cdk.out"
+            exit 1
+          fi
+          echo "No un-suppressed CDK Nag findings."
+
+      - name: Upload CDK Nag report
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: cdk-nag-report
+          path: infra/cdk/cdk.out
+          if-no-files-found: ignore
