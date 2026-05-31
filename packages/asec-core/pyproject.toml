@@ -6,11 +6,11 @@ description = "Orchestrator + provider-abstract AgentRuntime seam + governance f
 dependencies = [
     "claude-agent-sdk",
     "pydantic>=2.7",
-    "pydantic-settings",
-    "structlog",
-    "opentelemetry-api",
-    "cyclopts",
-    "cryptography",
+    "pydantic-settings>=2",
+    "structlog>=24",
+    "opentelemetry-api>=1.27",
+    "cryptography>=43",
+    "cyclopts>=3",
 ]
 
 [build-system]
