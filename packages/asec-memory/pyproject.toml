@@ -5,11 +5,10 @@ requires-python = ">=3.13"
 description = "Hypothesis board + findings ledger + SARIF v2.1 output (with x-bonk extension)."
 dependencies = [
     "asec-core",
+    "aiosqlite>=0.20",
     "pydantic>=2.7",
-    "aiosqlite",
-    "structlog",
-    "opentelemetry-api",
-    "sarif-tools",
+    "structlog>=24",
+    "opentelemetry-api>=1.27",
 ]
 
 [project.optional-dependencies]
