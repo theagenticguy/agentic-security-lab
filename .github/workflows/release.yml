@@ -35,7 +35,7 @@ jobs:
           enable-cache: true
 
       - name: Sync workspace
-        run: uv sync --locked
+        run: uv sync --locked --all-packages
 
       - name: Build distributions
         run: uv build --all-packages

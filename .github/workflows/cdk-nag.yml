@@ -50,7 +50,7 @@ jobs:
           node-version: 22
 
       - name: Sync workspace
-        run: uv sync --locked
+        run: uv sync --locked --all-packages
 
       - name: CDK synth
         run: mise run cdk:synth

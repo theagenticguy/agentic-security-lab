@@ -64,7 +64,9 @@ jobs:
         with:
           enable-cache: true
       - name: Run bandit
-        run: uv run --with bandit bandit -r packages apps
+        # Scan library + app source only; tests are excluded so B101 (assert) doesn't
+        # spam the report — pytest tests intentionally use bare asserts.
+        run: uv run --with bandit bandit -r packages apps -x '*/tests/*,*/test_*.py'
 
   pip-audit:
     name: pip-audit (dependency CVEs)

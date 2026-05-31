@@ -42,7 +42,7 @@ jobs:
           enable-cache: true
 
       - name: Sync workspace from lockfile
-        run: uv sync --locked
+        run: uv sync --locked --all-packages
 
   lint:
     name: Lint (ruff)
@@ -63,7 +63,7 @@ jobs:
         uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6
         with:
           enable-cache: true
-      - run: uv sync --locked
+      - run: uv sync --locked --all-packages
       - run: mise run lint
 
   typecheck:
@@ -85,7 +85,7 @@ jobs:
         uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6
         with:
           enable-cache: true
-      - run: uv sync --locked
+      - run: uv sync --locked --all-packages
       - run: mise run typecheck
 
   test:
@@ -107,7 +107,7 @@ jobs:
         uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6
         with:
           enable-cache: true
-      - run: uv sync --locked
+      - run: uv sync --locked --all-packages
       - name: Run tests with coverage
         run: uv run pytest --cov --cov-report=xml
       - name: Upload coverage to Codecov
