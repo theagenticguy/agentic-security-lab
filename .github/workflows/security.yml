@@ -22,6 +22,12 @@ jobs:
   gitleaks:
     name: gitleaks (secret scan)
     runs-on: ubuntu-latest
+    # gitleaks-action v2.x calls the GitHub API for PR commits; it needs read
+    # access to pull-requests + a wider checkout. v3.0.0 (dependabot PR #3) drops
+    # that requirement; once that's merged this `permissions` block can revert.
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -36,7 +42,8 @@ jobs:
   dependency-review:
     name: Dependency review (PR only)
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    # Requires GHAS on private repos. Auto-enables when public.
+    if: ${{ github.event_name == 'pull_request' && github.event.repository.visibility == 'public' }}
     permissions:
       contents: read
       pull-requests: write
