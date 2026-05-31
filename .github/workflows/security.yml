@@ -124,6 +124,12 @@ jobs:
           output: trivy-results.sarif
           severity: HIGH,CRITICAL
       - name: Upload Trivy SARIF
+        # SARIF upload to GitHub Code Scanning requires Advanced Security on
+        # private repos. The scan above runs unconditionally and fails the
+        # job if HIGH/CRITICAL findings are present (see exit-code default);
+        # uploading is just for the Security tab UI, which doesn't exist on
+        # private without GHAS. Auto-enables when we flip the repo public.
+        if: ${{ github.event.repository.visibility == 'public' }}
         uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
         with:
           sarif_file: trivy-results.sarif
