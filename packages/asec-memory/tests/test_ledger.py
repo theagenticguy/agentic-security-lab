@@ -54,12 +54,8 @@ async def test_list_findings_filters_by_priority(tmp_path: Path) -> None:
 async def test_suppression_dedup(tmp_path: Path) -> None:
     ledger = await _ledger(tmp_path)
     finding = _finding("f-1", 0.9)
-    s1 = Suppression(
-        id="s-1", rule_id="py/xss", location_uri="web/f-1.py", reason="test fixture"
-    )
-    s2 = Suppression(
-        id="s-2", rule_id="py/xss", location_uri="web/f-1.py", reason="duplicate"
-    )
+    s1 = Suppression(id="s-1", rule_id="py/xss", location_uri="web/f-1.py", reason="test fixture")
+    s2 = Suppression(id="s-2", rule_id="py/xss", location_uri="web/f-1.py", reason="duplicate")
     await ledger.add_suppression(s1)
     await ledger.add_suppression(s2)  # same (rule, uri) -> dedup_key collision
     similar = await ledger.find_similar(finding)

@@ -16,8 +16,7 @@ from asec_memory.models import Finding
 
 SARIF_VERSION = "2.1.0"
 SARIF_SCHEMA = (
-    "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
-    "Schemata/sarif-schema-2.1.0.json"
+    "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
 )
 TOOL_NAME = "agentic-security-lab"
 TOOL_VERSION = "0.1.0"

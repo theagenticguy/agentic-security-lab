@@ -50,11 +50,7 @@ class BaselineStrategy:
     async def score(self, inputs: ConfidenceInputs) -> ConfidenceScore:
         with _tracer.start_as_current_span("BaselineStrategy.score"):
             wp, wm, wr = self.weights
-            value = (
-                wp * inputs.pattern_match
-                + wm * inputs.memory_recall
-                + wr * inputs.reachability
-            )
+            value = wp * inputs.pattern_match + wm * inputs.memory_recall + wr * inputs.reachability
             tier, dispatch = _classify(value)
             _log.info("confidence.score", score=value, tier=tier, dispatch=dispatch)
             return ConfidenceScore(score=value, tier=tier, dispatch=dispatch)

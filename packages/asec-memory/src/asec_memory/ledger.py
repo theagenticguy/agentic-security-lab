@@ -99,9 +99,7 @@ class SQLiteLedger(LedgerPort):
             async with db.execute("SELECT version FROM schema_meta LIMIT 1") as cur:
                 row = await cur.fetchone()
             if row is None:
-                await db.execute(
-                    "INSERT INTO schema_meta(version) VALUES (?)", (SCHEMA_VERSION,)
-                )
+                await db.execute("INSERT INTO schema_meta(version) VALUES (?)", (SCHEMA_VERSION,))
             await db.commit()
         log.info("ledger.init", db_path=self._db_path, schema_version=SCHEMA_VERSION)
         return self
@@ -123,9 +121,10 @@ class SQLiteLedger(LedgerPort):
                 await db.commit()
 
     async def get_finding(self, finding_id: str) -> Finding | None:
-        async with aiosqlite.connect(self._db_path) as db, db.execute(
-            "SELECT payload FROM findings WHERE id = ?", (finding_id,)
-        ) as cur:
+        async with (
+            aiosqlite.connect(self._db_path) as db,
+            db.execute("SELECT payload FROM findings WHERE id = ?", (finding_id,)) as cur,
+        ):
             row = await cur.fetchone()
         if row is None:
             return None
@@ -175,9 +174,12 @@ class SQLiteLedger(LedgerPort):
                 await db.commit()
 
     async def find_similar(self, finding: Finding) -> Sequence[Suppression]:
-        async with aiosqlite.connect(self._db_path) as db, db.execute(
-            "SELECT payload FROM suppressions WHERE rule_id = ? AND location_uri = ?",
-            (finding.rule_id, finding.location.uri),
-        ) as cur:
+        async with (
+            aiosqlite.connect(self._db_path) as db,
+            db.execute(
+                "SELECT payload FROM suppressions WHERE rule_id = ? AND location_uri = ?",
+                (finding.rule_id, finding.location.uri),
+            ) as cur,
+        ):
             rows = await cur.fetchall()
         return [Suppression.model_validate_json(r[0]) for r in rows]

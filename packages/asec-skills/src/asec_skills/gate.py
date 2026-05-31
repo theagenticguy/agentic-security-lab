@@ -46,9 +46,7 @@ def _extract_path(tool_input: Mapping[str, Any]) -> str | None:
 
 def _path_is_denied(path: str, denied_paths: Iterable[str]) -> bool:
     name = PurePosixPath(path).name
-    return any(
-        fnmatch(path, pattern) or fnmatch(name, pattern) for pattern in denied_paths
-    )
+    return any(fnmatch(path, pattern) or fnmatch(name, pattern) for pattern in denied_paths)
 
 
 async def permission_gate(

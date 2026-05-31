@@ -49,9 +49,7 @@ def _signing_bytes(scope: ScopeArtifact) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
-def sign_scope(
-    scope: ScopeArtifact, private_key_pem: bytes, *, signer: str
-) -> ScopeArtifact:
+def sign_scope(scope: ScopeArtifact, private_key_pem: bytes, *, signer: str) -> ScopeArtifact:
     """E19 — return a copy of `scope` carrying an Ed25519 signature over its fields."""
     key = load_pem_private_key(private_key_pem, password=None)
     if not isinstance(key, Ed25519PrivateKey):

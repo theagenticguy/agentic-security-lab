@@ -82,7 +82,14 @@ class RunComplete(_Event):
 
 
 ProgressEvent = Annotated[
-    PhaseTransition | HypothesisOpened | HypothesisVerified | FindingEmitted | GateDecision | WorkerStuck | BudgetWarning | RunComplete,
+    PhaseTransition
+    | HypothesisOpened
+    | HypothesisVerified
+    | FindingEmitted
+    | GateDecision
+    | WorkerStuck
+    | BudgetWarning
+    | RunComplete,
     Field(discriminator="event_type"),
 ]
 

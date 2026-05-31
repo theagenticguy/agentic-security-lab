@@ -12,9 +12,7 @@ from typing import Literal
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-PermissionMode = Literal[
-    "plan", "default", "acceptEdits", "bypassPermissions", "dontAsk", "auto"
-]
+PermissionMode = Literal["plan", "default", "acceptEdits", "bypassPermissions", "dontAsk", "auto"]
 
 
 class Settings(BaseSettings):
@@ -28,17 +26,11 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(frozen=True, extra="ignore")
 
-    bedrock_use: bool = Field(
-        default=False, validation_alias="CLAUDE_CODE_USE_BEDROCK"
-    )
+    bedrock_use: bool = Field(default=False, validation_alias="CLAUDE_CODE_USE_BEDROCK")
     model_id: str = Field(
         default="global.anthropic.claude-opus-4-8",
-        validation_alias=AliasChoices(
-            "ANTHROPIC_MODEL", "ANTHROPIC_DEFAULT_OPUS_MODEL"
-        ),
+        validation_alias=AliasChoices("ANTHROPIC_MODEL", "ANTHROPIC_DEFAULT_OPUS_MODEL"),
     )
     aws_region: str = Field(default="us-east-1", validation_alias="AWS_REGION")
     max_budget_usd: float = Field(default=5.0, validation_alias="ASEC_MAX_BUDGET_USD")
-    permission_mode: PermissionMode = Field(
-        default="plan", validation_alias="ASEC_PERMISSION_MODE"
-    )
+    permission_mode: PermissionMode = Field(default="plan", validation_alias="ASEC_PERMISSION_MODE")

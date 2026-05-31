@@ -27,9 +27,7 @@ def _finding(**overrides: object) -> Finding:
         "cwe": "CWE-89",
         "location": FindingLocation(uri="app/db.py", start_line=42, end_line=44),
         "asec": AsecProperties(
-            reachability=Reachability(
-                verdict=ReachabilityVerdict.REACHABLE, score=0.9
-            ),
+            reachability=Reachability(verdict=ReachabilityVerdict.REACHABLE, score=0.9),
             exploitability=Exploitability(score=0.7),
             asset=AssetWeight(tier=AssetWeightTier.CRITICAL, score=1.0),
             priority=0.84,

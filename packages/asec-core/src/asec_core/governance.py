@@ -43,24 +43,16 @@ class GovernanceGate:
         self._kill = kill_switch or KillSwitch()
         self._max_budget_usd = max_budget_usd
 
-    def check(
-        self, *, spent_usd: float = 0.0, now: datetime | None = None, **_: Any
-    ) -> Decision:
+    def check(self, *, spent_usd: float = 0.0, now: datetime | None = None, **_: Any) -> Decision:
         """E19 — evaluate scope, kill switch, and budget; return an allow/deny decision."""
         ref = now or datetime.now(UTC)
 
-        if not self._scope.signature or not verify_scope(
-            self._scope, self._public_key_pem
-        ):
+        if not self._scope.signature or not verify_scope(self._scope, self._public_key_pem):
             return self._deny("scope artifact is unsigned or signature is invalid")
         if self._scope.is_expired(now=ref):
-            return self._deny(
-                f"scope artifact expired at {self._scope.expires_at.isoformat()}"
-            )
+            return self._deny(f"scope artifact expired at {self._scope.expires_at.isoformat()}")
         if self._kill.triggered:
-            return self._deny(
-                f"kill switch tripped: {self._kill.reason or 'no reason given'}"
-            )
+            return self._deny(f"kill switch tripped: {self._kill.reason or 'no reason given'}")
         if spent_usd >= self._max_budget_usd:
             return self._deny(
                 f"budget cap reached: ${spent_usd:.2f} >= ${self._max_budget_usd:.2f}"
