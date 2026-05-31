@@ -6,9 +6,9 @@ description = "Isolated target-code execution + hash-chained WORM audit writer."
 dependencies = [
     "asec-core",
     "pydantic>=2.7",
-    "anyio",
-    "structlog",
-    "opentelemetry-api",
+    "anyio>=4",
+    "structlog>=24",
+    "opentelemetry-api>=1.27",
 ]
 
 [project.optional-dependencies]
