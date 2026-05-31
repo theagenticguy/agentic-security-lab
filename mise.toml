@@ -33,10 +33,12 @@ run = ["uv run bandit -r packages apps", "uv run pip-audit", "trivy fs ."]
 run = "gitleaks detect --no-banner"
 
 [tasks."cdk:synth"]
+dir = "infra/cdk"
 run = "uv run --package infra-cdk cdk synth"
 
 [tasks."cdk:nag"]
-run = ["uv run --package infra-cdk cdk synth", "uv run checkov -d infra/cdk/cdk.out"]
+dir = "infra/cdk"
+run = ["uv run --package infra-cdk cdk synth", "uv run checkov -d cdk.out"]
 
 [tasks."docs:dev"]
 dir = "docs"
