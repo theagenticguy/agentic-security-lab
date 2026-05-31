@@ -25,6 +25,9 @@ permissions:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
+    # CodeQL needs Code Scanning, which on private repos requires GitHub
+    # Advanced Security. Gate on visibility — auto-enables when public.
+    if: ${{ github.event.repository.visibility == 'public' || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -52,4 +55,5 @@ jobs:
         uses: github/codeql-action/analyze@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
         with:
           category: /language:${{ matrix.language }}
-          upload: always
+          # Don't try to upload on private (GHAS-locked); flip to always when public.
+          upload: ${{ github.event.repository.visibility == 'public' && 'always' || 'never' }}
