@@ -16,7 +16,7 @@ class AgentRuntime(Protocol):
     """Provider-abstract agent runtime seam (E14, E15).
 
     The orchestrator depends only on this Protocol; `ClaudeAgentRuntime` is the sole v1
-    adapter. A future `StrandsRuntime` satisfies the same shape without inheritance.
+    adapter. A future an alternate-runtime adapter (e.g. `OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) satisfies the same shape without inheritance.
     """
 
     async def query(self, prompt: str, **options: Any) -> str:

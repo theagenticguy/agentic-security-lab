@@ -17,7 +17,7 @@ re-run the sync. Concept and how-to pages must never duplicate ADR content.
 ## The first eight ADRs
 
 1. Adopt Claude Agent SDK on Bedrock
-2. `AgentRuntime` Protocol + adapter (enables a future Strands swap)
+2. `AgentRuntime` Protocol + adapter (enables a future runtime swap (OpenAI Agents / DeepAgents / OpenCode))
 3. Docker rootless sandbox behind the `Sandbox` protocol
 4. SQLite + DynamoDB single-table findings ledger
 5. Hash-chained WORM audit (`chattr +a` / S3 Object Lock)

@@ -23,14 +23,14 @@ and is the only v1 implementation of the `AgentRuntime` Protocol defined in `ase
 
 ## Alternatives Considered
 
-- **Strands Agents SDK** — AWS-native agent framework with a clean Bedrock story. Rejected
-  for v1: weaker first-class hook/skill ergonomics than the Claude Agent SDK, and a less
-  direct path from existing Claude Code authoring experience. Kept as the designed-for swap
-  target behind the `AgentRuntime` Protocol (see ADR-002).
 - **Direct boto3 Bedrock Converse API** — maximal control, minimal dependency surface.
-  Rejected: we would have to re-implement the hook lifecycle, skill loading, streaming
+  Rejected: we would have to re-implement the hook lifecycle, skill loading, progress-event
   normalization, and subagent orchestration by hand — exactly the value the Agent SDK
   already provides.
+- **OpenAI Agents SDK / DeepAgents (LangGraph) / OpenCode CLI** — non-Anthropic runtimes
+  worth supporting eventually for portability and customer choice. Deferred from v1: each
+  is a swap, not a rewrite, behind the `AgentRuntime` Protocol (ADR-002). Adapters to be
+  added when a real second consumer appears, not speculatively.
 
 ## Rationale
 
@@ -51,6 +51,7 @@ while keeping the default model on the required Opus 4.8 inference profile.
 ### Negative
 
 - Vendor coupling to the Claude Agent SDK surface. **Mitigated** by the `AgentRuntime`
-  Protocol seam (ADR-002): the orchestrator depends only on the Protocol, so a future
-  `StrandsRuntime` can satisfy the same shape without inheritance coupling. Split trigger:
-  a second runtime consumer (e.g. a non-Claude provider) appears.
+  Protocol seam (ADR-002): the orchestrator depends only on the Protocol, so future adapters
+  (`OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) satisfy the same shape
+  without inheritance coupling. Split trigger: a second runtime consumer (e.g. a non-Claude
+  provider) appears.

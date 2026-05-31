@@ -1,7 +1,7 @@
 """Provider-abstract agent runtime seam + the v1 Claude adapter (E14, E15, E16).
 
 Per PLAN.md §11 decision 2 (tech-stack ADR-0002), the orchestrator depends only on the
-`AgentRuntime` Protocol so a future `StrandsRuntime` can satisfy the same shape without
+`AgentRuntime` Protocol so a future an alternate-runtime adapter (e.g. `OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) can satisfy the same shape without
 inheritance coupling and without leaking SDK types upward. `ClaudeAgentRuntime` is the
 sole v1 adapter; it lazy-imports `claude-agent-sdk` inside its methods so the Protocol
 (and the package) stays importable even when the SDK is not yet installed.

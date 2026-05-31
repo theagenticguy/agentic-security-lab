@@ -37,5 +37,5 @@ flowchart TD
 
 Strict and one-way: `apps → packages → asec-core`. No package imports another's concrete
 class; cross-package coupling is via `typing.Protocol` re-exported from `asec-core`
-(`SandboxPort`, `LedgerPort`, `SkillLoaderPort`). A future `StrandsRuntime` can satisfy
+(`SandboxPort`, `LedgerPort`, `SkillLoaderPort`). A future an alternate-runtime adapter (e.g. `OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) can satisfy
 the `AgentRuntime` protocol without inheritance coupling.

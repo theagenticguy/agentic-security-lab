@@ -196,7 +196,7 @@ docs/src/content/docs/
 
 pnpm isolated to `docs/`. Mermaid via `astro-mermaid`. `docs/CLAUDE.md` scope: concept + how-to pages only — never duplicate ADR content (ADRs are source-of-truth in `/adr`, mirrored read-only); every page opens with a runnable example before reference tables; max H3 depth (C discipline).
 
-**First 8 ADRs:** 1 — Adopt Claude Agent SDK on Bedrock; 2 — `AgentRuntime` Protocol + adapter (Strands swap); 3 — Docker rootless sandbox behind `Sandbox` protocol; 4 — SQLite + DynamoDB single-table ledger; 5 — Hash-chained WORM audit (`chattr +a` / S3 Object Lock); 6 — Own pydantic SARIF v2.1 + Bonk models; 7 — Deny-by-default skill gate via PreToolUse hook; 8 — Pluggable `ConfidenceStrategy` with `bm25s` recall.
+**First 10 ADRs:** 1 — Adopt Claude Agent SDK on Bedrock (no Strands; future adapters: OpenAI Agents / DeepAgents / OpenCode); 2 — `AgentRuntime` Protocol + adapter (runtime swap); 3 — Docker rootless sandbox behind `Sandbox` protocol; 4 — SQLite + DynamoDB single-table ledger; 5 — Hash-chained WORM audit (`chattr +a` / S3 Object Lock); 6 — Own pydantic SARIF v2.1 + `asec` property bag; 7 — Deny-by-default skill gate via PreToolUse hook; 8 — Pluggable `ConfidenceStrategy` with `bm25s` recall; 9 — gVisor sandbox upgrade (v1.5 delta); 10 — Ledger backends: SQLite (local default) + asyncpg Postgres (cloud) + PGlite as docs reference.
 
 ## 9 — CI workflows (`.github/workflows/`)
 
@@ -228,7 +228,7 @@ All third-party actions pinned by SHA; OpenSSF baseline.
 ## 11 — Three load-bearing decisions where the plans disagreed
 
 1. **Package count.** A=8, B=4, C=6. **Winner: 6 (C)** — keep every whitepaper seam (sandbox isolation, WORM, gate, provider, threat-model/E1, confidence/E18), merge only the two single-consumer plumbing packages (`output`→`memory`, `governance`→`core`).
-2. **Model-provider seam shape.** B/C want a plain `make_options()` function; A wants a `Protocol` + adapter. **Winner: Protocol + adapter (A, tech-stack ADR-002)** — the SDK's async-generator surface needs normalizing and a future `StrandsRuntime` must satisfy the same shape without inheritance coupling; a bare function leaks SDK types into the orchestrator.
+2. **Model-provider seam shape.** B/C want a plain `make_options()` function; A wants a `Protocol` + adapter. **Winner: Protocol + adapter (A, tech-stack ADR-002)** — the SDK's async-generator surface needs normalizing and a future runtime adapter (e.g. `OpenAIAgentsRuntime`, `DeepAgentsRuntime`, or `OpenCodeRuntime`) must satisfy the same shape without inheritance coupling; a bare function leaks SDK types into the orchestrator.
 3. **Sandbox-first vs loop-first.** A builds `DockerSandbox` before the loop; B ships `LocalSandbox` passthrough and swaps to Docker on Day 4. **Winner: loop-first (B)** — the `Sandbox` *protocol* is what proves loop topology; isolation is a Day-4 hardening pass behind one DI line, so integration risk surfaces two days earlier.
 
 ## 12 — Risks + mitigations (top 5)

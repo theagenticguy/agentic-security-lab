@@ -14,7 +14,7 @@ other `asec-*` package. It re-exports the Protocols (`SandboxPort`, `LedgerPort`
 
 - `AgentRuntime(Protocol)` — `query`, `stream`, `spawn_subagents`, `register_hook`.
 - `ClaudeAgentRuntime` — the only v1 adapter; wraps `ClaudeSDKClient`. A future
-  `StrandsRuntime` satisfies the same Protocol without inheritance.
+  an alternate-runtime adapter (e.g. `OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) satisfies the same Protocol without inheritance.
 - `Orchestrator.run(scope) -> ReviewResult`.
 - `Settings(BaseSettings)`.
 - `ScopeArtifact`, `KillSwitch`, `GovernanceGate`.
