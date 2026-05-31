@@ -4,12 +4,10 @@ version = "0.1.0"
 requires-python = ">=3.13"
 description = "SKILL.md loader + deny-by-default PreToolUse permission gate."
 dependencies = [
-    "asec-core",
     "pydantic>=2.7",
-    "pyyaml",
-    "structlog",
-    "opentelemetry-api",
-    "claude-agent-sdk",
+    "pyyaml>=6",
+    "structlog>=24",
+    "opentelemetry-api>=1.27",
 ]
 
 [build-system]

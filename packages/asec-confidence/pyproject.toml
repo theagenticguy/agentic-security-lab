@@ -4,11 +4,10 @@ version = "0.1.0"
 requires-python = ">=3.13"
 description = "Three-axis confidence scorer (pattern, recall, reachability) with bm25s lexical recall."
 dependencies = [
-    "asec-core",
     "pydantic>=2.7",
-    "bm25s",
-    "structlog",
-    "opentelemetry-api",
+    "bm25s>=0.2",
+    "structlog>=24",
+    "opentelemetry-api>=1.27",
 ]
 
 [build-system]
