@@ -64,9 +64,14 @@ jobs:
         with:
           enable-cache: true
       - name: Run bandit
-        # Scan library + app source only; tests are excluded so B101 (assert) doesn't
-        # spam the report — pytest tests intentionally use bare asserts.
-        run: uv run --with bandit bandit -r packages apps -x '*/tests/*,*/test_*.py'
+        # Scan library + app source only (tests excluded — B101 fires on every
+        # pytest assert). Gate on Medium+ severity; Low findings (B101 in retry
+        # loops, B404/B603 for the LocalSandbox subprocess, etc.) get reviewed
+        # in PR but don't block CI on substrate code that intentionally
+        # spawns subprocesses.
+        run: uv run --with bandit bandit -r packages apps
+          -x '*/tests/*,*/test_*.py'
+          --severity-level medium
 
   pip-audit:
     name: pip-audit (dependency CVEs)
@@ -83,8 +88,12 @@ jobs:
       - name: Run pip-audit
         run: uv run --with pip-audit pip-audit
 
-  osv-scanner:
-    name: osv-scanner
+  # osv-scanner uploads SARIF to GitHub Code Scanning, which requires GitHub
+  # Advanced Security on private repos. Gate on visibility — auto-enables when
+  # we flip the repo public, same pattern as the Scorecard workflow.
+  osv-scanner-public-only:
+    name: osv-scanner (public repos only)
+    if: ${{ github.event.repository.visibility == 'public' }}
     permissions:
       contents: read
       security-events: write
@@ -107,7 +116,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # v0.32.0
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .

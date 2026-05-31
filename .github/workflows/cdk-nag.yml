@@ -49,6 +49,10 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install CDK CLI
+        # The `cdk` binary isn't bundled with Node — install via npm before synth.
+        run: npm install -g aws-cdk@2
+
       - name: Sync workspace
         run: uv sync --locked --all-packages
 
