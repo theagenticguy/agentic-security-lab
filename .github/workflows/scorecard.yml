@@ -22,6 +22,9 @@ permissions:
 jobs:
   analysis:
     name: Scorecard Analysis
+    # Scorecard requires a public repo for graphqlHandler queries.
+    # When the repo flips to public, this guard auto-enables it.
+    if: ${{ github.event.repository.visibility == 'public' }}
     runs-on: ubuntu-latest
     permissions:
       security-events: write # Upload SARIF

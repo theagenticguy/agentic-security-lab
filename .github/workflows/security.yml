@@ -83,7 +83,6 @@ jobs:
 
   osv-scanner:
     name: osv-scanner
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
