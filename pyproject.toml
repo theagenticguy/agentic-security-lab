@@ -16,7 +16,8 @@ asec-confidence   = { workspace = true }
 
 [dependency-groups]
 dev = ["pytest", "pytest-asyncio", "pytest-cov", "hypothesis",
-       "atheris", "pyright", "ruff", "commitizen"]
+       "atheris", "pyright", "ruff", "commitizen",
+       "boto3", "boto3-stubs[bedrock-runtime]"]
 # NOTE: osv-scanner is a standalone Go binary (installed via mise/trivy), not on PyPI.
 security = ["bandit", "pip-audit", "checkov"]
 
@@ -29,6 +30,10 @@ ignore = ["E501"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
+# scripts/ is operational glue (one-off invocations against external services
+# with dynamically-dispatched clients like boto3). The strict bar is reserved
+# for library + app code where it pays for itself.
+exclude = ["scripts", "**/__pycache__", ".venv", "infra/cdk/cdk.out"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

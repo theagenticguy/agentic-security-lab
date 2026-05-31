@@ -6,6 +6,7 @@ real orchestrator. ~5 input tokens, ~5 output tokens.
 
 Usage: AWS_PROFILE=lalsaado-handson uv run python scripts/bedrock_smoke.py
 """
+
 from __future__ import annotations
 
 import json
@@ -14,9 +15,7 @@ import sys
 
 import boto3
 
-MODEL_ID = os.environ.get(
-    "ANTHROPIC_MODEL", "global.anthropic.claude-opus-4-8"
-)
+MODEL_ID = os.environ.get("ANTHROPIC_MODEL", "global.anthropic.claude-opus-4-8")
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 
@@ -30,7 +29,7 @@ def main() -> int:
     resp = client.invoke_model(modelId=MODEL_ID, body=json.dumps(body))
     payload = json.loads(resp["body"].read())
     text = payload["content"][0]["text"].strip()
-    usage = payload.get("usage", {})
+    usage = payload.get("usage") or {}
     print(f"model_id      = {MODEL_ID}")
     print(f"region        = {REGION}")
     print(f"reply         = {text!r}")
