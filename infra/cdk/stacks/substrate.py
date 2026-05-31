@@ -11,6 +11,7 @@ from aws_cdk import Stack
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_kms as kms
 from aws_cdk import aws_s3 as s3
+from cdk_nag import NagSuppressions
 from constructs import Construct
 
 
@@ -33,6 +34,23 @@ class AsecSubstrateStack(Stack):
             enforce_ssl=True,
             versioned=True,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+        )
+        # AwsSolutions-S1: server-access logs disabled. This *is* the audit bucket
+        # (WORM, Object Lock, hash-chained JSONL — see ADR-005). Adding S3 server
+        # access logs to itself would be circular; per-request CloudTrail Data
+        # Events on this bucket are the right Day-4 control. See
+        # cdk-nag-suppressions.md for the audit trail.
+        NagSuppressions.add_resource_suppressions(
+            self.audit_bucket,
+            [
+                {
+                    "id": "AwsSolutions-S1",
+                    "reason": (
+                        "Bucket is itself the WORM audit log; per-request CloudTrail "
+                        "Data Events (Day-4) cover access logging. ADR-005."
+                    ),
+                }
+            ],
         )
 
         # DynamoDB findings ledger — single-table, on-demand, PITR, CMK, full streams.
