@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import aws_cdk as cdk
 from cdk_nag import AwsSolutionsChecks
+from stacks.ami_pipeline import SandboxAmiPipelineStack
 from stacks.sandbox_host import SandboxHostStack
 from stacks.substrate import AsecSubstrateStack
 
@@ -27,6 +28,17 @@ SandboxHostStack(
     bedrock_role=substrate.bedrock_role,
     kms_key=substrate.kms_key,
     bedrock_endpoint_sg=substrate.endpoint_security_group,
+)
+
+# EC2 Image Builder pipeline for the hardened sandbox host AMI (Day-4 plan
+# section 5 / Track G). Deployed independently of SandboxHostStack so the two can
+# ship separately — the host runs on the cloud-init fallback until the pipeline
+# produces an AMI. The pipeline's `AsecSandboxAmiId` export is fed back into
+# SandboxHostStack as a stack prop once a build has run (not wired live yet).
+SandboxAmiPipelineStack(
+    app,
+    "SandboxAmiPipelineStack",
+    env=cdk.Environment(region="us-east-1"),
 )
 
 # CDK Nag: enforce AWS Solutions security/compliance rules across the whole app.
