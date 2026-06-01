@@ -76,3 +76,4 @@ Icon
 *.swo
 *~
 .\#*
+apps/pr-reviewer/fixtures/.asec-run/
