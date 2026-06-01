@@ -13,11 +13,15 @@ description: "The orchestrator must decide *how hard* to work each candidate fin
 
 The orchestrator must decide *how hard* to work each candidate finding: a high-confidence hit
 goes to a specialized worker, a marginal one fans out to a swarm or escalates to runtime
-authorship (E18). That decision rides on a single confidence score combining a pattern-match
+authorship ([E18](/agentic-security-lab/concepts/ears-invariants/#e18)). That decision rides on a single confidence score combining a pattern-match
 signal, a memory-recall signal (have we seen something like this before?), and a reachability
 signal. We want the scoring math to be swappable as we learn, and we want the score to be
 explainable and reproducible in v1. This ADR fixes the scoring seam, the v1 baseline, and the
 recall mechanism.
+
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
 
 ## Decision
 
@@ -63,3 +67,6 @@ class, not a rewrite. `bm25s` keeps recall dependency-light so local dev stays z
   paraphrase). **Mitigated** by the swappable Protocol and the configurable weight tuple.
   Split trigger: calibration data shows the linear baseline materially mis-tiers findings,
   justifying a learned or embedding strategy.
+
+
+</details>

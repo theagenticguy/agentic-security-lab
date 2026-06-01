@@ -13,10 +13,14 @@ description: "Findings must leave the substrate in a format that existing securi
 
 Findings must leave the substrate in a format that existing security tooling — GitHub code
 scanning, IDEs, dashboards — already ingests, while also carrying the substrate's own
-signals: whether a defect is reachable (E18), how exploitable it is, the asset weight, the
+signals: whether a defect is reachable ([E18](/agentic-security-lab/concepts/ears-invariants/#e18)), how exploitable it is, the asset weight, the
 derived priority, and pointers to the evidence (PoC, patch, audit log). SARIF v2.1.0 is the
 OASIS standard those tools speak, and §3.8 of the spec reserves `properties` bags exactly for
 tool-specific extension data. This ADR fixes how we emit SARIF and where our signals live.
+
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
 
 ## Decision
 
@@ -59,3 +63,6 @@ SARIF logs small and shifts the heavy evidence to the durable ledger and WORM au
 - We own the mapping from our models to the SARIF shape as the spec evolves. **Mitigated** by
   the small, centralized `to_sarif_*` functions. Split trigger: SARIF v2.2 or a consumer that
   needs richer `result` fields than we currently emit.
+
+
+</details>

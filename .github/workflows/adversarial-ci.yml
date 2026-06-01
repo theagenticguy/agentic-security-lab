@@ -18,6 +18,14 @@ on:
       - "apps/**"
       - ".claude/skills/**"
       - "tests/adversarial/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "apps/**"
+      - ".claude/skills/**"
+      - "tests/adversarial/**"
+      - ".github/workflows/adversarial-ci.yml"
   schedule:
     # Weekly, Monday 06:00 UTC.
     - cron: "0 6 * * 1"

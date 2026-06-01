@@ -13,9 +13,13 @@ description: "ADR-001 commits the substrate to the Claude Agent SDK as the v1 ru
 
 ADR-001 commits the substrate to the Claude Agent SDK as the v1 runtime, but explicitly
 defers other providers behind a seam. We need that seam to be concrete: the orchestrator
-(`asec-core`) must drive querying, hook registration (E16), and subagent fan-out (E15)
+(`asec-core`) must drive querying, hook registration ([E16](/agentic-security-lab/concepts/ears-invariants/#e16)), and subagent fan-out ([E15](/agentic-security-lab/concepts/ears-invariants/#e15))
 without ever importing `claude-agent-sdk` types or shapes. The question this ADR answers is
 *what shape* the runtime boundary takes so a future provider is a swap, not a rewrite.
+
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
 
 ## Decision
 
@@ -40,8 +44,8 @@ each satisfies the same Protocol without inheritance.
 
 A structural Protocol enforces the `apps -> packages -> asec-core` dependency direction with
 zero inheritance edges: adapters live in their own packages and depend only on the Protocol.
-`RuntimeMessage` keeps the orchestrator provider-pure, so the hook lifecycle (E16) and
-subagent dispatch (E15) are testable against a fake runtime.
+`RuntimeMessage` keeps the orchestrator provider-pure, so the hook lifecycle ([E16](/agentic-security-lab/concepts/ears-invariants/#e16)) and
+subagent dispatch ([E15](/agentic-security-lab/concepts/ears-invariants/#e15)) are testable against a fake runtime.
 
 ## Consequences
 
@@ -55,3 +59,6 @@ subagent dispatch (E15) are testable against a fake runtime.
 - Every adapter must do its own SDK-to-`RuntimeMessage` normalization. **Mitigated** by
   keeping `RuntimeMessage` small and discriminated by `kind`. Split trigger: a second
   runtime consumer lands and we extract a shared normalization helper.
+
+
+</details>

@@ -15,8 +15,12 @@ The substrate hands a capable model real tools — a shell, file editors, dynami
 — inside a sandbox that runs untrusted code. Prompt-level instructions about what a skill
 "should" do are not a security boundary: they are non-deterministic and bypassable. We need a
 *deterministic* enforcement point that decides, per tool call, whether the call is permitted,
-and we need that decision to be auditable (E7, E8). The Claude Agent SDK exposes a PreToolUse
+and we need that decision to be auditable ([E7](/agentic-security-lab/concepts/ears-invariants/#e7), [E8](/agentic-security-lab/concepts/ears-invariants/#e8)). The Claude Agent SDK exposes a PreToolUse
 hook that fires before every tool invocation. This ADR fixes how we gate tool calls.
+
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
 
 ## Decision
 
@@ -62,3 +66,6 @@ package-dependency direction and makes the gate unit-testable without a runtime.
   scopes; an under-specified list breaks a legitimate skill. **Mitigated** by clear deny
   reasons in the payload and logs. Split trigger: a need for richer policy than allow/deny
   globs (e.g. argument-value constraints) forces a policy-engine layer.
+
+
+</details>

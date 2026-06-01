@@ -5,11 +5,13 @@ description: Clone, install with mise, run the tests, and run the dev loop.
 
 ## Prerequisites
 
-- [`mise`](https://mise.jdx.dev/) (manages Python 3.13, `uv`, and Node 22 per the repo `mise.toml`)
-- AWS credentials with `bedrock:InvokeModel` access to `global.anthropic.claude-opus-4-8`
-  (a Day-1 smoke test verifies this; it is an E2E precondition)
-- Docker (only needed for the hardened `DockerSandbox` path; the default `LocalSandbox`
-  passthrough needs nothing)
+- [`mise`](https://mise.jdx.dev/) — installs the Python 3.13, `uv`, and Node 22
+  versions pinned in the repo's `mise.toml`.
+- AWS credentials with `bedrock:InvokeModel` access to
+  `global.anthropic.claude-opus-4-8`. The bootstrap smoke test verifies this;
+  the end-to-end loop will not run without it.
+- Docker — only needed for the hardened `DockerSandbox` path. The default
+  `LocalSandbox` passthrough needs nothing.
 
 ## Quickstart
 
@@ -37,8 +39,10 @@ uv run pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo
 
 - A green `uv sync` resolves the whole six-package workspace into one `.venv`.
 - `mise run test` runs `uv run pytest` across every package.
-- `mise run dev` runs the PR-reviewer loop: SKILL.md → Orchestrator → Bedrock Opus 4.8 →
-  `Finding` → SQLite ledger → `findings.sarif` + a WORM audit line, over the fixture.
+- `mise run dev` runs the pull-request reviewer loop end-to-end against the
+  fixture corpus: `SKILL.md` → orchestrator → Bedrock Opus 4.8 → `Finding` →
+  SQLite ledger → `findings.sarif` + a Write-Once-Read-Many (WORM) audit-log
+  line.
 
 ## Useful tasks
 
@@ -54,6 +58,6 @@ uv run pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo
 | Synthesize CDK | `mise run cdk:synth` |
 
 :::caution
-`apps/pr-reviewer` is a substrate proof, **not** production-grade. It exists to exercise
-every primitive interface end-to-end on a tiny corpus.
+`apps/pr-reviewer` is the v1 fixture-driven exercise of every package boundary.
+It is not a production review service.
 :::
