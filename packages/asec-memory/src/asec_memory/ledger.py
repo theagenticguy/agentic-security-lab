@@ -95,6 +95,10 @@ class SQLiteLedger(LedgerPort):
     async def init(self) -> SQLiteLedger:
         """Create the schema and stamp the version. Safe to call repeatedly."""
         async with aiosqlite.connect(self._db_path) as db:
+            # WAL mode lets the Day-5 fan-out workers write concurrently without
+            # readers blocking writers (Day-3 risk 4 prerequisite). The pragma is
+            # persistent on the database file, so setting it once at init suffices.
+            await db.execute("PRAGMA journal_mode=WAL")
             await db.executescript(_SCHEMA)
             async with db.execute("SELECT version FROM schema_meta LIMIT 1") as cur:
                 row = await cur.fetchone()

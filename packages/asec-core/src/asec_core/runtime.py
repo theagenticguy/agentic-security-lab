@@ -16,6 +16,7 @@ env (`CLAUDE_CODE_USE_BEDROCK=1`, set in `mise.toml`) so no explicit option is n
 
 from __future__ import annotations
 
+import os
 from collections.abc import AsyncIterator, Sequence
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
@@ -202,12 +203,24 @@ class ClaudeAgentRuntime:
                 yield normalized
 
     async def spawn_subagents(self, specs: Sequence[Any]) -> Sequence[Any]:
-        """E15 — fan out AgentDefinition-backed subagents.
+        """E15 — translate specs into SDK ``AgentDefinition``s for ``options.agents``.
 
-        TODO(day-5): translate specs into `claude_agent_sdk.AgentDefinition`s and dispatch
-        them via a single `query` with `options.agents`, gathering per-subagent results
-        (PLAN §6 fan-out). Day 3 is single-`query`; this remains a raise-free shim.
+        Enables the SDK Task tool (``CLAUDE_CODE_ENABLE_TASKS=1``) so the lead agent can
+        delegate to each per-CWE worker, then maps each `asec_core.AgentDefinition` into a
+        `claude_agent_sdk.AgentDefinition`. The orchestrator drives the concurrent dispatch
+        and dedup itself (it owns the shared `HypothesisBoard`); this returns the SDK-shaped
+        agent map for callers that delegate through a single lead `query`.
         """
-        self._require_sdk()
-        _log.info("runtime.spawn_subagents.noop", count=len(list(specs)))
-        return []
+        sdk = self._require_sdk()
+        os.environ["CLAUDE_CODE_ENABLE_TASKS"] = "1"
+        agents: dict[str, Any] = {}
+        for spec in specs:
+            prompt = getattr(spec, "system_prompt_extra", "") or getattr(spec, "description", "")
+            agents[spec.name] = sdk.AgentDefinition(
+                description=spec.description,
+                prompt=prompt,
+                tools=list(getattr(spec, "allowed_tools", ()) or ()),
+                model=self._settings.model_id if self._settings is not None else None,
+            )
+        _log.info("runtime.spawn_subagents", count=len(agents))
+        return list(agents.values())
