@@ -9,37 +9,49 @@
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/release/python-3130/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-A code-analysis agent that **reads code semantically, runs experiments in a
-throwaway sandbox, and verifies hypotheses in a closed loop**. The agent has
-three faculties:
+An **autonomous security agent that finds vulnerabilities, proves them with
+working exploits, and proposes patches**. Given a repo or a pull-request
+diff, the agent enumerates candidate weaknesses, runs each one in a
+throwaway sandbox to confirm it's actually exploitable, and emits findings
+the team can ship — every confirmed vulnerability ships with a Proof of
+Concept (PoC), a proposed patch, and the audit trail of the run that
+produced them.
 
-- **Eyes** — Claude Opus 4.8 on Amazon Bedrock reads the target repo (lexical
-  + AST + cross-reference search).
+The differentiator over a Static Application Security Testing (SAST) flood
+is that the agent **falsifies its own guesses by running them**. A candidate
+bug stays a hypothesis until the sandbox produces an exploit (or a
+counter-example that rules it out), and only confirmed vulnerabilities reach
+the findings ledger. False positives are suppressed by name in the false-
+positive memory; variants of confirmed bugs are tracked across sessions.
+
+The agent has three faculties:
+
+- **Eyes** — Claude Opus 4.8 on Amazon Bedrock reads the target repo
+  (lexical + abstract-syntax-tree + cross-reference search), authors a
+  threat model in Phase Zero, and proposes hypotheses.
 - **Hands** — a per-experiment Docker / gVisor sandbox launched with
-  `--network=none` by default. Egress, when enabled per-run, is enforced by an
-  allowlist sidecar.
-- **Memory** — an append-only hypothesis board, a durable findings ledger, and
-  a tamper-evident audit log of every tool call and gate decision.
+  `--network=none` by default. Hypotheses are confirmed by execution: the
+  agent compiles, runs, fuzzes, and exploits target code in isolation.
+  Egress, when enabled per-run, is enforced by an allowlist sidecar.
+- **Memory** — an append-only hypothesis board, a durable findings ledger,
+  a false-positive memory for suppressions, and a tamper-evident audit log
+  of every tool call and gate decision.
 
-The differentiator over a Static Application Security Testing (SAST) flood is
-that the agent **falsifies its own guesses by running them**: a candidate bug
-is a hypothesis until the sandbox produces a Proof of Concept (PoC) or a
-counter-example, and only confirmed findings reach the ledger.
+## What v1 does
 
-## What it does today
-
-v1 implements the **pull-request mode** end-to-end against a small fixture
-corpus. Given a diff:
+v1 implements the **pull-request review** mode end-to-end against a small
+fixture corpus. Given a diff:
 
 1. Loads the target repo and a hand-written `threat-model.yaml`.
-2. The orchestrator runs the diff through Claude Opus 4.8 with a deny-by-default
-   tool gate and a sandboxed exec surface.
-3. Each candidate finding is scored on three axes — pattern match, memory
-   recall, and reachability — and dispatched accordingly (specialized worker,
-   parallel shell, or swarm).
-4. Confirmed findings land in a SQLite ledger and are emitted as Static
-   Analysis Results Interchange Format (SARIF) v2.1 with an `asec` property
-   bag carrying the confidence axes.
+2. The orchestrator runs the diff through Claude Opus 4.8 with a
+   deny-by-default tool gate and a sandboxed exec surface.
+3. Each candidate weakness is scored on three axes — pattern match, memory
+   recall, and reachability — and dispatched accordingly (specialized
+   worker, parallel shell, or swarm).
+4. Confirmed vulnerabilities land in a SQLite ledger and are emitted as
+   Static Analysis Results Interchange Format (SARIF) v2.1 with an `asec`
+   property bag carrying the confidence axes plus URIs to the PoC, the
+   proposed patch, and the audit log entry.
 5. Every tool call, sandbox lifecycle event, and gate decision appends to a
    hash-chained Write-Once-Read-Many (WORM) audit log.
 
@@ -49,9 +61,16 @@ mise run dev
 ```
 
 The pull-request mode is the first of **five lifecycle modes** the substrate
-is designed for. The other four (Onboarding, Nightly variant, Release,
-Incident) reuse the same six packages — adding one is new orchestration
-wiring, not new isolation, ledger, or audit primitives.
+is designed for. The other four reuse the same packages — adding one is new
+orchestration wiring, not new isolation, ledger, or audit primitives.
+
+| Mode | Trigger | Scope | v1 status |
+|---|---|---|---|
+| Onboarding | New repo connected | Agent authors `threat-model.yaml` and a first-pass vulnerability sweep | Designed |
+| **Pull request** | PR opened or updated | Review changed lines; gate the PR on CRITICAL or HIGH | **v1 — built** |
+| Nightly variant | Cron | Re-scan + variant analysis on prior confirmed bugs (Big-Sleep style) | Designed |
+| Release | Tag push | Supply-chain + Software Bill of Materials (SBOM) + dependency-CVE gate | Designed |
+| Incident | Alert / manual | Forensic log analysis + targeted hypothesis loop | Designed |
 
 ## Quickstart
 
@@ -145,9 +164,11 @@ into the closest siblings. Each merge is recorded with a *split trigger* in
 
 ## Adversarial CI
 
-A hermetic self-test gate that re-audits the agent on every change. Injects a
-fake `AgentRuntime` (no Bedrock call), runs the orchestrator against four
-planted-canary classes, asserts each safety property:
+A hermetic self-test gate that **re-audits the agent on every change**. The
+agent itself is software with skills, prompts, and tool calls — it's an
+attack surface in its own right. The job injects a fake `AgentRuntime` (no
+Bedrock call), runs the orchestrator against four planted-canary classes,
+and asserts each safety property:
 
 | Class | Asserts |
 |---|---|
@@ -173,9 +194,11 @@ The agent's behavior is governed by a list of 19
 
 ## Status
 
-**Alpha — pull-request mode end-to-end on a fixture corpus.** The other four
-lifecycle modes are designed for, not built. The `apps/pr-reviewer` app is a
-small wiring exercise, not a production review service.
+**Alpha — pull-request review end-to-end on a fixture corpus.** The other
+four lifecycle modes are designed for, not built. The `apps/pr-reviewer`
+app is a small wiring exercise, not a production review service. Patch
+proposal is in scope; auto-PR-comment is gated on human approval (see
+[E16](https://theagenticguy.github.io/agentic-security-lab/concepts/ears-invariants/#e16)).
 
 ## License
 

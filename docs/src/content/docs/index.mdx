@@ -1,9 +1,9 @@
 ---
 title: agentic-security-lab
-description: A code-analysis agent that reads code semantically, runs experiments in a sandbox, and verifies hypotheses in a closed loop.
+description: An autonomous security agent that finds vulnerabilities, proves them with working exploits, and proposes patches.
 template: splash
 hero:
-  tagline: Eyes (Claude Opus 4.8), hands (sandbox), memory (ledger + audit). Verify by running, not just pattern-matching.
+  tagline: Autonomous vulnerability discovery, exploit verification, and patch proposal in a closed read-run-verify loop.
   actions:
     - text: Get started
       link: /agentic-security-lab/guides/getting-started/
@@ -16,47 +16,60 @@ hero:
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
 
-A code-analysis agent that **reads code semantically, runs experiments in a
-throwaway sandbox, and verifies hypotheses in a closed loop**. The agent has
-three faculties:
+An **autonomous security agent that finds vulnerabilities, proves them with
+working exploits, and proposes patches**. Given a repo or a pull-request
+diff, the agent enumerates candidate weaknesses, runs each one in a
+throwaway sandbox to confirm it's actually exploitable, and emits findings
+the team can ship — every confirmed vulnerability ships with a Proof of
+Concept (PoC), a proposed patch, and the audit trail of the run that
+produced them.
 
-- **Eyes** — Claude Opus 4.8 on Amazon Bedrock reads the target repo
-  (lexical + AST + cross-reference search).
+The differentiator over a Static Application Security Testing (SAST) flood
+is that the agent **falsifies its own guesses by running them**. A candidate
+bug stays a hypothesis until the sandbox produces an exploit (or a
+counter-example that rules it out), and only confirmed vulnerabilities
+reach the findings ledger. False positives are suppressed by name in the
+false-positive memory; variants of confirmed bugs are tracked across
+sessions.
+
+## Three faculties
+
+- **Eyes** — Claude Opus 4.8 on Amazon Bedrock reads the target repo,
+  authors a threat model in Phase Zero, and proposes hypotheses.
 - **Hands** — a per-experiment Docker / gVisor sandbox launched with
-  `--network=none` by default.
+  `--network=none` by default. Hypotheses are confirmed by execution.
 - **Memory** — an append-only hypothesis board, a durable findings ledger,
-  and a tamper-evident audit log.
-
-The differentiator over a Static Application Security Testing (SAST) flood is
-that the agent **falsifies its own guesses by running them**: a candidate bug
-stays a hypothesis until the sandbox produces a Proof of Concept (PoC) or a
-counter-example, and only confirmed findings reach the ledger.
+  a false-positive memory, and a tamper-evident audit log.
 
 ## What v1 does
 
-The v1 implementation is the **pull-request reviewer**. Given a diff, it
-loads the target repo and a hand-written `threat-model.yaml`, runs the diff
-through Claude Opus 4.8 with a deny-by-default tool gate and a sandboxed
-exec surface, scores each candidate on three axes (pattern, recall,
-reachability), dispatches accordingly (specialized worker, parallel shell,
-or swarm), and emits confirmed findings as Static Analysis Results
-Interchange Format (SARIF) v2.1 plus a hash-chained
-Write-Once-Read-Many (WORM) audit-log line per tool call.
+v1 implements the **pull-request review** mode end-to-end against a small
+fixture corpus. Given a diff, it loads the target repo and a hand-written
+`threat-model.yaml`, runs the diff through Claude Opus 4.8 with a
+deny-by-default tool gate and a sandboxed exec surface, scores each
+candidate on three axes (pattern, recall, reachability), dispatches
+accordingly (specialized worker, parallel shell, or swarm), and emits
+confirmed vulnerabilities as Static Analysis Results Interchange Format
+(SARIF) v2.1 — each result carrying URIs to the PoC, the proposed patch,
+and the audit-log entry.
 
 ```sh
 mise run dev
 # pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo
 ```
 
-The pull-request mode is the first of [five lifecycle modes](/agentic-security-lab/concepts/lifecycle-modes/)
-the substrate is designed for. The other four (Onboarding, Nightly variant,
-Release, Incident) reuse the same six packages — adding one is new
-orchestration wiring, not new isolation, ledger, or audit primitives.
+Pull-request review is the first of [five lifecycle modes](/agentic-security-lab/concepts/lifecycle-modes/)
+the substrate is designed for: Onboarding (full-repo bootstrap with
+agent-authored threat model), **Pull request (v1)**, Nightly variant
+(Big-Sleep-style re-runs against prior confirmed bugs), Release
+(supply-chain + Software Bill of Materials gate), and Incident (forensic
+loop). The other four reuse the same six packages — adding one is new
+orchestration wiring, not new primitives.
 
 <CardGrid stagger>
   <Card title="How it works" icon="puzzle">
-    The reading / running / verifying loop, the six asec-* packages, and the
-    five lifecycle modes.
+    The read-run-verify loop, the three faculties, and the six asec-*
+    packages that implement them.
     [Read concepts](/agentic-security-lab/concepts/substrate/)
   </Card>
   <Card title="Get started" icon="rocket">
