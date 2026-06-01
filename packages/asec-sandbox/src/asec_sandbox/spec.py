@@ -44,6 +44,11 @@ class SandboxSpec(BaseModel):
     tmpfs_paths: tuple[str, ...] = ()
     mounts: tuple[Mount, ...] = ()
     env: dict[str, str] = Field(default_factory=dict)
+    image: str = "asec-sandbox:dev"
+    allow_fallback: bool = False
+    """When ``kind='gvisor'`` and the ``runsc`` runtime is not registered with Docker, fall
+    back to the default runtime (runc) with a ``structlog`` warning + a WORM ``gate_decision``
+    instead of raising. Defaults to ``False``: an unavailable gVisor runtime is a hard error."""
 
     @model_validator(mode="after")
     def _check_invariants(self) -> SandboxSpec:
