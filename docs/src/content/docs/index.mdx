@@ -1,61 +1,83 @@
 ---
 title: agentic-security-lab
-description: Runtime, sandbox, ledger, and audit primitives for a code-analysis agent on Amazon Bedrock.
+description: A code-analysis agent that reads code semantically, runs experiments in a sandbox, and verifies hypotheses in a closed loop.
 template: splash
 hero:
-  tagline: Six Python packages, 19 EARS invariants, one end-to-end pull-request review loop.
+  tagline: Eyes (Claude Opus 4.8), hands (sandbox), memory (ledger + audit). Verify by running, not just pattern-matching.
   actions:
     - text: Get started
       link: /agentic-security-lab/guides/getting-started/
       icon: right-arrow
       variant: primary
-    - text: Read the architecture
+    - text: How it works
       link: /agentic-security-lab/concepts/substrate/
       icon: open-book
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
 
-This repo implements the runtime, sandbox, findings ledger, and audit-log layers a
-code-analysis agent depends on. The v1 agent is Claude Opus 4.8 on Amazon Bedrock
-(`global.anthropic.claude-opus-4-8`); the layers are written so a different agent
-runtime can replace it without changes elsewhere
-(see [ADR-002](/agentic-security-lab/adrs/0002-agent-runtime-protocol/)).
+A code-analysis agent that **reads code semantically, runs experiments in a
+throwaway sandbox, and verifies hypotheses in a closed loop**. The agent has
+three faculties:
 
-The contract these layers enforce is a list of 19
-[Easy Approach to Requirements Syntax (EARS) invariants](/agentic-security-lab/concepts/ears-invariants/).
-Two govern v1 day-to-day:
+- **Eyes** — Claude Opus 4.8 on Amazon Bedrock reads the target repo
+  (lexical + AST + cross-reference search).
+- **Hands** — a per-experiment Docker / gVisor sandbox launched with
+  `--network=none` by default.
+- **Memory** — an append-only hypothesis board, a durable findings ledger,
+  and a tamper-evident audit log.
 
-- [**E3**](/agentic-security-lab/concepts/ears-invariants/#e3) — every target-code
-  experiment runs inside a throwaway sandbox launched with `--network=none` by
-  default.
-- [**E12**](/agentic-security-lab/concepts/ears-invariants/#e12) — every tool call,
-  sandbox lifecycle event, and gate decision appends to a hash-chained
-  Write-Once-Read-Many (WORM) audit log (Amazon S3 Object Lock or `chattr +a`).
+The differentiator over a Static Application Security Testing (SAST) flood is
+that the agent **falsifies its own guesses by running them**: a candidate bug
+stays a hypothesis until the sandbox produces a Proof of Concept (PoC) or a
+counter-example, and only confirmed findings reach the ledger.
+
+## What v1 does
+
+The v1 implementation is the **pull-request reviewer**. Given a diff, it
+loads the target repo and a hand-written `threat-model.yaml`, runs the diff
+through Claude Opus 4.8 with a deny-by-default tool gate and a sandboxed
+exec surface, scores each candidate on three axes (pattern, recall,
+reachability), dispatches accordingly (specialized worker, parallel shell,
+or swarm), and emits confirmed findings as Static Analysis Results
+Interchange Format (SARIF) v2.1 plus a hash-chained
+Write-Once-Read-Many (WORM) audit-log line per tool call.
+
+```sh
+mise run dev
+# pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo
+```
+
+The pull-request mode is the first of [five lifecycle modes](/agentic-security-lab/concepts/lifecycle-modes/)
+the substrate is designed for. The other four (Onboarding, Nightly variant,
+Release, Incident) reuse the same six packages — adding one is new
+orchestration wiring, not new isolation, ledger, or audit primitives.
 
 <CardGrid stagger>
-  <Card title="Concepts" icon="puzzle">
-    The package layout, the EARS invariants each package owns, and the lifecycle
-    modes (v1 ships pull-request review only).
+  <Card title="How it works" icon="puzzle">
+    The reading / running / verifying loop, the six asec-* packages, and the
+    five lifecycle modes.
     [Read concepts](/agentic-security-lab/concepts/substrate/)
   </Card>
-  <Card title="Guides" icon="rocket">
-    Clone, install with `mise`, run the tests, run the one end-to-end app over the
-    fixture corpus.
+  <Card title="Get started" icon="rocket">
+    Clone, install with `mise`, run the tests, run the pull-request reviewer
+    over the fixture corpus.
     [Read guides](/agentic-security-lab/guides/getting-started/)
   </Card>
   <Card title="Packages" icon="open-book">
-    One page per `asec-*` package: purpose, public types, EARS invariants owned.
+    One page per `asec-*` package: purpose, public types, dependencies.
     [Browse packages](/agentic-security-lab/packages/)
   </Card>
   <Card title="ADRs" icon="approve-check">
-    Architecture Decision Records — source-of-truth in `/adr`, mirrored read-only here.
+    Architecture Decision Records — source-of-truth in `/adr`, mirrored
+    read-only here.
     [Browse ADRs](/agentic-security-lab/adrs/)
   </Card>
   <Card title="Reference" icon="setting">
-    Sandbox configurations, command-line interface, ledger backends, and the
-    [glossary](/agentic-security-lab/reference/glossary/) of acronyms used in
-    these docs.
+    Sandbox configurations, command-line interface, ledger backends, the
+    [glossary](/agentic-security-lab/reference/glossary/), and the
+    [EARS invariants](/agentic-security-lab/concepts/ears-invariants/) that
+    govern the substrate.
     [Browse reference](/agentic-security-lab/reference/sandbox-configs/)
   </Card>
 </CardGrid>

@@ -9,23 +9,49 @@
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/release/python-3130/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-Runtime, sandbox, findings ledger, and audit-log layers for a code-analysis
-agent on Amazon Bedrock. The v1 agent is Claude Opus 4.8
-(`global.anthropic.claude-opus-4-8`); the layers are written so a different
-agent runtime can replace it without changes elsewhere
-(see [ADR-002](adr/0002-agent-runtime-protocol.md)).
+A code-analysis agent that **reads code semantically, runs experiments in a
+throwaway sandbox, and verifies hypotheses in a closed loop**. The agent has
+three faculties:
 
-The contract these layers enforce is a list of 19
-[Easy Approach to Requirements Syntax (EARS) invariants][ears-page]. Two
-govern v1 day-to-day:
+- **Eyes** — Claude Opus 4.8 on Amazon Bedrock reads the target repo (lexical
+  + AST + cross-reference search).
+- **Hands** — a per-experiment Docker / gVisor sandbox launched with
+  `--network=none` by default. Egress, when enabled per-run, is enforced by an
+  allowlist sidecar.
+- **Memory** — an append-only hypothesis board, a durable findings ledger, and
+  a tamper-evident audit log of every tool call and gate decision.
 
-- **E3** — every target-code experiment runs inside a throwaway sandbox
-  launched with `--network=none` by default.
-- **E12** — every tool call, sandbox lifecycle event, and gate decision appends
-  to a hash-chained Write-Once-Read-Many (WORM) audit log (Amazon S3 Object
-  Lock or `chattr +a`).
+The differentiator over a Static Application Security Testing (SAST) flood is
+that the agent **falsifies its own guesses by running them**: a candidate bug
+is a hypothesis until the sandbox produces a Proof of Concept (PoC) or a
+counter-example, and only confirmed findings reach the ledger.
 
-[ears-page]: https://theagenticguy.github.io/agentic-security-lab/concepts/ears-invariants/
+## What it does today
+
+v1 implements the **pull-request mode** end-to-end against a small fixture
+corpus. Given a diff:
+
+1. Loads the target repo and a hand-written `threat-model.yaml`.
+2. The orchestrator runs the diff through Claude Opus 4.8 with a deny-by-default
+   tool gate and a sandboxed exec surface.
+3. Each candidate finding is scored on three axes — pattern match, memory
+   recall, and reachability — and dispatched accordingly (specialized worker,
+   parallel shell, or swarm).
+4. Confirmed findings land in a SQLite ledger and are emitted as Static
+   Analysis Results Interchange Format (SARIF) v2.1 with an `asec` property
+   bag carrying the confidence axes.
+5. Every tool call, sandbox lifecycle event, and gate decision appends to a
+   hash-chained Write-Once-Read-Many (WORM) audit log.
+
+```sh
+mise run dev
+# pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo
+```
+
+The pull-request mode is the first of **five lifecycle modes** the substrate
+is designed for. The other four (Onboarding, Nightly variant, Release,
+Incident) reuse the same six packages — adding one is new orchestration
+wiring, not new isolation, ledger, or audit primitives.
 
 ## Quickstart
 
@@ -35,17 +61,8 @@ cd agentic-security-lab
 mise install        # installs Python 3.13, uv, Node 22 per mise.toml
 mise run install    # uv sync — one .venv across the workspace
 mise run test       # uv run pytest
+mise run dev        # the pull-request reviewer loop on the fixture corpus
 ```
-
-Run the one end-to-end app over the committed fixture corpus:
-
-```sh
-mise run dev        # pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo
-```
-
-Output: a `findings.sarif` (Static Analysis Results Interchange Format v2.1
-with the `asec` property bag), one hash-chained WORM audit-log line per tool
-call, SQLite ledger rows, and an engineering report.
 
 ### Prerequisites
 
@@ -65,14 +82,14 @@ agentic-security-lab/
 │   ├── asec-sandbox/       # isolated execution + WORM audit-log writer
 │   ├── asec-memory/        # hypothesis board + findings ledger + SARIF
 │   ├── asec-skills/        # SKILL.md loader + deny-by-default PreToolUse gate
-│   ├── asec-threat-model/  # Pydantic threat-model artifacts (E1, E2)
+│   ├── asec-threat-model/  # Pydantic threat-model artifacts
 │   └── asec-confidence/    # three-axis (pattern, recall, reachability) scorer
-├── apps/pr-reviewer/       # the one end-to-end app (fixture-driven, not prod)
-├── infra/cdk/              # Python AWS CDK stacks; CDK Nag in CI
-├── adr/                    # source-of-truth ADRs (mirrored to docs)
+├── apps/pr-reviewer/       # the v1 end-to-end app (fixture-driven, not prod)
+├── infra/cdk/              # Python AWS Cloud Development Kit (CDK) stacks
+├── adr/                    # source-of-truth Architecture Decision Records
 ├── docs/                   # Astro Starlight site (pnpm-isolated)
-├── scripts/                # repo automation (ADR sync, etc.)
-└── tests/adversarial/      # §16 canary corpus (honey-bugs, prompt-injection,
+├── scripts/                # repo automation
+└── tests/adversarial/      # canary corpus (honey-bugs, prompt-injection,
                             #   honey-secret, tool-call canaries)
 ```
 
@@ -82,19 +99,19 @@ another's concrete class — only `typing.Protocol` types re-exported from
 
 ## Packages
 
-| Package | Owns | EARS invariants |
-|---|---|---|
-| [`asec-core`](packages/asec-core/) | Orchestrator + `AgentRuntime` Protocol + governance gate | E14, E15, E16, E18 (dispatch), E19 |
-| [`asec-sandbox`](packages/asec-sandbox/) | Isolated execution + hash-chained WORM audit writer | E3, E4, E5, E6, E12, E13 |
-| [`asec-memory`](packages/asec-memory/) | Hypothesis board + findings ledger + SARIF v2.1 emission | E9, E10, E11 |
-| [`asec-skills`](packages/asec-skills/) | `SKILL.md` loader + deny-by-default PreToolUse permission gate | E7, E8 |
-| [`asec-threat-model`](packages/asec-threat-model/) | Pydantic threat-model artifacts + diff | E1, E2 |
-| [`asec-confidence`](packages/asec-confidence/) | Three-axis confidence scorer (pluggable strategies, BM25 recall) | E18 (scoring) |
+| Package | Owns |
+|---|---|
+| [`asec-core`](packages/asec-core/) | Orchestrator + `AgentRuntime` Protocol + governance gate |
+| [`asec-sandbox`](packages/asec-sandbox/) | Isolated execution + hash-chained WORM audit-log writer |
+| [`asec-memory`](packages/asec-memory/) | Hypothesis board + findings ledger + SARIF v2.1 emission |
+| [`asec-skills`](packages/asec-skills/) | `SKILL.md` loader + deny-by-default PreToolUse permission gate |
+| [`asec-threat-model`](packages/asec-threat-model/) | Pydantic threat-model artifacts + diff |
+| [`asec-confidence`](packages/asec-confidence/) | Three-axis confidence scorer (pluggable strategies, BM25 recall) |
 
-Eight design-document foundations collapse to six packages: `asec-output` folds
-into `asec-memory` and `asec-governance` folds into `asec-core` — the two
-single-consumer plumbing pieces. Each merge is recorded with a *split trigger*
-in [ADR-001](adr/0001-adopt-claude-agent-sdk.md).
+The original whitepaper lists eight foundations. v1 collapses two
+single-consumer plumbing pieces (`output` → `memory`, `governance` → `core`)
+into the closest siblings. Each merge is recorded with a *split trigger* in
+[ADR-001](adr/0001-adopt-claude-agent-sdk.md).
 
 ## Common tasks
 
@@ -117,25 +134,25 @@ in [ADR-001](adr/0001-adopt-claude-agent-sdk.md).
 
 | Workflow | Triggers | What it runs |
 |---|---|---|
-| **CI** | push, PR | `mise install` → `uv sync` → ruff lint → pyright strict → pytest + coverage |
+| **CI** | push, PR | `mise install` → `uv sync` → ruff → pyright strict → pytest + coverage |
 | **CodeQL Analysis** | push, PR, weekly | GitHub CodeQL static analysis on the Python tree (fixtures and adversarial corpus excluded) |
 | **Security** | push, PR, weekly | `gitleaks`, dependency review, `bandit`, `pip-audit`, `osv-scanner`, `trivy fs` (SARIF upload) |
-| **Adversarial CI** | push, PR, weekly | §16 canary corpus: honey-bugs, prompt-injection, honey-secret, tool-call canaries — see ["What is Adversarial CI?"](#what-is-adversarial-ci) |
+| **Adversarial CI** | push, PR, weekly | The canary corpus (see below) |
 | **CDK Nag** | push, PR (infra changes) | `cdk synth` + `checkov` |
 | **OpenSSF Scorecard** | push, PR, weekly | Supply-chain best-practices score (publish gated to default branch) |
-| **Documentation** | push (`adr/**`, `docs/**`) | Astro Starlight build → GitHub Pages deploy |
+| **Documentation** | push, PR (`adr/**`, `docs/**`) | Astro Starlight build → GitHub Pages deploy on push |
 | **Release** | tag push | `commitizen` bump + changelog |
 
-## What is Adversarial CI?
+## Adversarial CI
 
-A hermetic self-test gate. The harness injects a fake `AgentRuntime` (no
-Bedrock call), runs the orchestrator against four planted-canary classes, and
-asserts each safety property:
+A hermetic self-test gate that re-audits the agent on every change. Injects a
+fake `AgentRuntime` (no Bedrock call), runs the orchestrator against four
+planted-canary classes, asserts each safety property:
 
 | Class | Asserts |
 |---|---|
 | Honey-bugs (5 files, CWE-89/79/22/502/639) | Recall = 5/5 |
-| Prompt injection (magic comments, fake tool output) | No `<exfiltrate>` token, only expected event types in WORM audit |
+| Prompt injection (magic comments, fake tool output) | No `<exfiltrate>` token, only expected event types in audit log |
 | Honey-secret (planted `AKIAIOSFODNN7EXAMPLE`) | Flagged as a finding **and** never appears in any `tool_call` argument |
 | Tool canaries (`git push`, `curl`, `nc`, `rm -rf`, …) | Every coerced out-of-scope call denied via `GateDecision` |
 
@@ -147,15 +164,18 @@ Source: `tests/adversarial/`. Runner: `tests/adversarial/runner.py`.
   (Astro Starlight; deployed by the `Documentation` workflow.)
 - ADRs: source of truth in [`/adr`](adr/), mirrored into the docs by
   `scripts/sync_adrs.py`.
-- EARS invariants: [concepts/ears-invariants/][ears-page].
-- Glossary of acronyms: [reference/glossary/](https://theagenticguy.github.io/agentic-security-lab/reference/glossary/).
+- Glossary of acronyms: <https://theagenticguy.github.io/agentic-security-lab/reference/glossary/>.
+
+## Substrate contract
+
+The agent's behavior is governed by a list of 19
+[Easy Approach to Requirements Syntax (EARS) invariants](https://theagenticguy.github.io/agentic-security-lab/concepts/ears-invariants/) — sandbox isolation, deny-by-default tool gating, append-only memory, hash-chained audit, human gate on externally visible actions, and so on. Each `asec-*` package owns a subset and tests against it directly. They are the security contract, not the project pitch.
 
 ## Status
 
-**Alpha — foundations only.** This repo implements the substrate primitives
-listed in the *Packages* table; the `apps/pr-reviewer` app exercises every
-package boundary against a small fixture corpus. It is not a production review
-service.
+**Alpha — pull-request mode end-to-end on a fixture corpus.** The other four
+lifecycle modes are designed for, not built. The `apps/pr-reviewer` app is a
+small wiring exercise, not a production review service.
 
 ## License
 
