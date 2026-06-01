@@ -103,9 +103,8 @@ class AsecProperties(_Frozen):
     confidence_tier: str | None = None
     dispatch: str | None = None
     variants_of: tuple[str, ...] = ()
+    """Seed finding ids this result is a variant of (correlation pass + Big Sleep variant mode, E18/E19)."""
     hypothesis_id: str | None = None
-    variants_of: str | None = None
-    """The seed finding id this result is a variant of (Big Sleep variant mode, E18/E19)."""
 
 
 class Finding(_Frozen):

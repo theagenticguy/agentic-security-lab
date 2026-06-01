@@ -277,13 +277,17 @@ def _parse_findings(text: str) -> list[Finding]:
     raw: list[dict[str, Any]] = json.loads(match.group("body"))
     out: list[Finding] = []
     for item in raw:
-        variants_of = item.get("variants_of")
+        # The prompt contract emits a single string seed id (or null); the
+        # AsecProperties model carries a tuple to support multi-seed correlation
+        # in the orchestrator's correlation pass. Normalize.
+        raw_variant = item.get("variants_of")
+        variants_of: tuple[str, ...] = (str(raw_variant),) if raw_variant else ()
         out.append(
             Finding(
                 id=str(
                     uuid.uuid5(
                         uuid.NAMESPACE_URL,
-                        f"{item['rule_id']}:{item['uri']}:{variants_of or 'seed'}",
+                        f"{item['rule_id']}:{item['uri']}:{raw_variant or 'seed'}",
                     )
                 ),
                 rule_id=str(item["rule_id"]),
