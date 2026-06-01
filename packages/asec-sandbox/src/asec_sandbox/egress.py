@@ -184,7 +184,11 @@ class EgressProxy:
             cap_drop=["ALL"],
             security_options=["no-new-privileges"],
             read_only=True,
-            tmpfs=["/etc/tinyproxy", "/var/log/tinyproxy", "/tmp"],
+            # B108: `/tmp` here is a tmpfs mount *inside the egress-proxy container*
+            # — not a host path. The proxy runs read-only with cap-drop=ALL on a
+            # Docker network with no internet route; tmpfs is the right place for
+            # ephemeral request buffers. Hardcoded path is correct.
+            tmpfs=["/etc/tinyproxy", "/var/log/tinyproxy", "/tmp"],  # nosec B108
             detach=True,
             remove=False,
         )

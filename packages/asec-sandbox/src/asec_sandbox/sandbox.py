@@ -215,8 +215,12 @@ class DockerSandbox:
         """tmpfs mounts: hardened ``/tmp`` + the ``/work/.scratch`` scratch, plus spec extras."""
         mem = self._spec.mem_limit_mib
         scratch_size = f"{mem}m" if mem else "512m"
+        # B108: `/tmp` here is a tmpfs mount *inside the sandboxed agent
+        # container* with `noexec,nosuid` and a bounded size — not a host path.
+        # The container runs read-only with cap-drop=ALL on a no-internet
+        # network; tmpfs at /tmp is the standard hardened pattern.
         mounts = [
-            f"/tmp:noexec,nosuid,size={scratch_size}",
+            f"/tmp:noexec,nosuid,size={scratch_size}",  # nosec B108
             f"{SCRATCH_DIR}:nosuid,nodev,size={scratch_size}",
         ]
         mounts.extend(f"{p}:nosuid,nodev" for p in self._spec.tmpfs_paths)
