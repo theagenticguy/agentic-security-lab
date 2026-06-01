@@ -14,16 +14,18 @@ docs-deploy workflow). Do not edit ADR content here — edit the source file in 
 re-run the sync. Concept and how-to pages must never duplicate ADR content.
 :::
 
-## The first eight ADRs
+## The first ten ADRs
 
 1. Adopt Claude Agent SDK on Bedrock
-2. `AgentRuntime` Protocol + adapter (enables a future runtime swap (OpenAI Agents / DeepAgents / OpenCode))
+2. `AgentRuntime` Protocol + adapter (runtime swap: OpenAI Agents / DeepAgents / OpenCode)
 3. Docker rootless sandbox behind the `Sandbox` protocol
 4. SQLite + DynamoDB single-table findings ledger
 5. Hash-chained WORM audit (`chattr +a` / S3 Object Lock)
-6. Own pydantic SARIF v2.1 + Bonk models
+6. Own pydantic SARIF v2.1 + `asec` property bag
 7. Deny-by-default skill gate via PreToolUse hook
 8. Pluggable `ConfidenceStrategy` with `bm25s` recall
+9. gVisor platform + EC2 instance type + storage tiers
+10. Ledger backends: SQLite (local) + asyncpg Postgres (cloud) + PGlite (docs reference)
 
 ## How the mirror works
 
