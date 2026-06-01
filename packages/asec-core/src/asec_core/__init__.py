@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from .governance import GovernanceGate
 from .killswitch import FileKillSwitch, KillSwitch
-from .runtime import AgentRuntime, ClaudeAgentRuntime
+from .orchestrator import Orchestrator, ReviewResult
+from .runtime import AgentRuntime, ClaudeAgentRuntime, RuntimeMessage
 from .scope import ScopeArtifact, sign_scope, verify_scope
 from .settings import Settings
 
@@ -16,6 +17,9 @@ __all__ = [
     "FileKillSwitch",
     "GovernanceGate",
     "KillSwitch",
+    "Orchestrator",
+    "ReviewResult",
+    "RuntimeMessage",
     "ScopeArtifact",
     "Settings",
     "__version__",

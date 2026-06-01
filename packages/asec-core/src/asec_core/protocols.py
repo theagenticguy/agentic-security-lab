@@ -19,21 +19,21 @@ class AgentRuntime(Protocol):
     adapter. A future an alternate-runtime adapter (e.g. `OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) satisfies the same shape without inheritance.
     """
 
-    async def query(self, prompt: str, **options: Any) -> str:
-        """E14 — issue a single completion against the configured model and return text."""
-        raise NotImplementedError
+    def query(self, prompt: str, *, options: Any | None = ...) -> AsyncIterator[Any]:
+        """E14 — issue a query against the configured model; yield normalized messages.
 
-    def stream(self, prompt: str, **options: Any) -> AsyncIterator[str]:
-        """E14 — stream a completion as normalized text chunks."""
-        raise NotImplementedError
-
-    async def spawn_subagents(self, prompts: Sequence[str], **options: Any) -> Sequence[str]:
-        """E15 — fan out per-concern subagents and gather their results."""
-        raise NotImplementedError
+        Returns an async iterator of `RuntimeMessage` (typed as `Any` here so this
+        Protocol stays import-light); the concrete adapter narrows the element type.
+        """
+        ...
 
     def register_hook(self, event: str, handler: Any) -> None:
         """E16 — register a lifecycle hook (e.g. PreToolUse) on the runtime."""
-        raise NotImplementedError
+        ...
+
+    async def spawn_subagents(self, specs: Sequence[Any]) -> Sequence[Any]:
+        """E15 — fan out per-concern subagents and gather their results."""
+        ...
 
 
 @runtime_checkable
