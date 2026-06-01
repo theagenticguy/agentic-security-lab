@@ -1,3 +1,11 @@
 # Intentionally empty so pnpm treats docs/ as an isolated workspace root
 # and does not traverse into the parent uv/Python workspace.
 packages: []
+
+# Native deps that need to run install scripts. Both are build-time
+# requirements: esbuild is Astro's bundler; sharp powers Astro's image
+# pipeline. pnpm 10+ blocks scripts by default — approving here keeps CI
+# from hitting ERR_PNPM_IGNORED_BUILDS.
+allowBuilds:
+  esbuild: true
+  sharp: true

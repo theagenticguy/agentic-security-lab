@@ -19,6 +19,10 @@ synthesized from `.planning/track-g-ec2-gvisor-storage.md` (prices: us-east-1 on
 Linux, AWS Price List offer `20260529053858`). It answers: which gVisor platform, which
 instance, which volumes, and where the WORM audit lives.
 
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
+
 ## Decision
 
 **gVisor platform.** Run **`runsc --platform=systrap`** as the v1 default. Per
@@ -84,3 +88,6 @@ roughly **$280/month** at 4 h/day.
 - ARM64 (Graviton) requires multi-arch agent base images. **Mitigated** by baking an arm64
   AMI via EC2 Image Builder. Split trigger: a tool with no arm64 build forces an x86 metal
   host.
+
+
+</details>

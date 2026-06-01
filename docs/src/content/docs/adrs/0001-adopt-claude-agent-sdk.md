@@ -19,6 +19,10 @@ loading, and subagent fan-out, while running against Amazon Bedrock for the
 orchestrator (`asec-core`) builds on, and do so without leaking provider SDK types
 throughout the codebase.
 
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
+
 ## Decision
 
 We will adopt the **Claude Agent SDK (Python)** as the v1 agent runtime, configured to run
@@ -40,7 +44,7 @@ and is the only v1 implementation of the `AgentRuntime` Protocol defined in `ase
 ## Rationale
 
 The Claude Agent SDK gives us the richest hook and skill model of the options, which the
-substrate's permission gate (E7/E8) and audit logging (E12) depend on directly. Its
+substrate's permission gate (E7/E8) and audit logging ([E12](/agentic-security-lab/concepts/ears-invariants/#e12)) depend on directly. Its
 ergonomics map cleanly onto the team's existing Claude Code authoring experience, lowering
 adoption cost. Running it on Bedrock satisfies the deployment and governance constraints
 while keeping the default model on the required Opus 4.8 inference profile.
@@ -60,3 +64,6 @@ while keeping the default model on the required Opus 4.8 inference profile.
   (`OpenAIAgentsRuntime`, `DeepAgentsRuntime`, `OpenCodeRuntime`) satisfy the same shape
   without inheritance coupling. Split trigger: a second runtime consumer (e.g. a non-Claude
   provider) appears.
+
+
+</details>
