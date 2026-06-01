@@ -11,6 +11,11 @@ dependencies = [
     "opentelemetry-api>=1.27",
     "cryptography>=43",
     "cyclopts>=3",
+    "asec-memory",
+    "asec-sandbox",
+    "asec-threat-model",
+    "asec-skills",
+    "anyio>=4.13.0",
 ]
 
 [build-system]
@@ -19,3 +24,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/asec_core"]
+
+[tool.uv.sources]
+asec-memory = { workspace = true }
+asec-sandbox = { workspace = true }
+asec-threat-model = { workspace = true }
+asec-skills = { workspace = true }

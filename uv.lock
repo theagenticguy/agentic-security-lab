@@ -275,6 +275,11 @@ name = "asec-core"
 version = "0.1.0"
 source = { editable = "packages/asec-core" }
 dependencies = [
+    { name = "anyio" },
+    { name = "asec-memory" },
+    { name = "asec-sandbox" },
+    { name = "asec-skills" },
+    { name = "asec-threat-model" },
     { name = "claude-agent-sdk" },
     { name = "cryptography" },
     { name = "cyclopts" },
@@ -286,6 +291,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4.13.0" },
+    { name = "asec-memory", editable = "packages/asec-memory" },
+    { name = "asec-sandbox", editable = "packages/asec-sandbox" },
+    { name = "asec-skills", editable = "packages/asec-skills" },
+    { name = "asec-threat-model", editable = "packages/asec-threat-model" },
     { name = "claude-agent-sdk" },
     { name = "cryptography", specifier = ">=43" },
     { name = "cyclopts", specifier = ">=3" },
