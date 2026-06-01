@@ -2,5 +2,12 @@
   "typeCheckingMode": "strict",
   "pythonVersion": "3.13",
   "include": ["packages", "apps"],
-  "exclude": ["**/node_modules", "**/.venv", "**/__pycache__", "**/cdk.out", "infra/cdk"]
+  "exclude": [
+    "**/node_modules",
+    "**/.venv",
+    "**/__pycache__",
+    "**/cdk.out",
+    "infra/cdk",
+    "apps/pr-reviewer/fixtures"
+  ]
 }

@@ -1,0 +1,55 @@
+version: 1
+generated_by: asec-pr-reviewer-fixture
+generated_at: "2026-06-01T00:00:00+00:00"
+assets:
+  - id: user-pii
+    class: PII
+    weight: HIGH
+    description: User records (names, lookup data) served by the /users endpoint.
+  - id: search-surface
+    class: OTHER
+    weight: MED
+    description: Reflected search-results page rendered to the browser.
+  - id: file-store
+    class: FINANCIAL
+    weight: HIGH
+    description: Server-side financial document store exposed by /download.
+threats:
+  - id: T-sql-injection
+    element_id: src/api/users.py
+    stride: I
+    description: >-
+      Untrusted query parameter is interpolated into a SQL statement, allowing
+      information disclosure of the user-pii asset (CWE-89).
+    likelihood: HIGH
+    impact: HIGH
+    mitigation: Use parameterized queries / bound parameters.
+    owner: api-team
+  - id: T-reflected-xss
+    element_id: src/web/render.py
+    stride: T
+    description: >-
+      Reflected search input is rendered into HTML without escaping, allowing
+      script injection into the search-surface asset (CWE-79).
+    likelihood: HIGH
+    impact: MED
+    mitigation: Contextually escape output / use an autoescaping template engine.
+    owner: web-team
+  - id: T-path-traversal
+    element_id: src/files/download.py
+    stride: I
+    description: >-
+      Untrusted path component escapes the base directory, disclosing arbitrary
+      files from the file-store asset (CWE-22).
+    likelihood: MED
+    impact: HIGH
+    mitigation: Normalize and confine the resolved path under BASE.
+    owner: platform-team
+attack_trees:
+  - goal: Exfiltrate protected server data
+    kind: OR
+    children:
+      - goal: Read user PII via SQL injection on /users
+        kind: LEAF
+      - goal: Read arbitrary files via path traversal on /download
+        kind: LEAF

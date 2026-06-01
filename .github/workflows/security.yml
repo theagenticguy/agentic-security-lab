@@ -77,7 +77,7 @@ jobs:
         # in PR but don't block CI on substrate code that intentionally
         # spawns subprocesses.
         run: uv run --with bandit bandit -r packages apps
-          -x '*/tests/*,*/test_*.py'
+          -x '*/tests/*,*/test_*.py,*/fixtures/*'
           --severity-level medium
 
   pip-audit:

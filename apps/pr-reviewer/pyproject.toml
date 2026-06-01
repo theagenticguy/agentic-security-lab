@@ -11,6 +11,7 @@ dependencies = [
     "asec-threat-model",
     "asec-confidence",
     "cyclopts",
+    "anyio",
 ]
 
 [project.scripts]
