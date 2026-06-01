@@ -10,6 +10,8 @@ name: OpenSSF Scorecard
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   branch_protection_rule:
   schedule:
     # Every Monday at 07:30 UTC
@@ -42,10 +44,17 @@ jobs:
         with:
           results_file: scorecard-results.sarif
           results_format: sarif
-          publish_results: true
+          # publish_results is only valid on push/schedule against the default
+          # branch. On pull_request runs, the action errors if true, so gate it
+          # off — the PR run still produces SARIF, just no public publish.
+          publish_results: ${{ github.event_name != 'pull_request' }}
           repo_token: ${{ secrets.SCORECARD_TOKEN || secrets.GITHUB_TOKEN }}
 
+      # Skip the Code Scanning SARIF upload on pull_request runs to avoid
+      # double-counting alerts under the per-PR analysis category. Push and
+      # schedule runs still upload, so the public score stays current.
       - name: Upload Scorecard SARIF
+        if: ${{ github.event_name != 'pull_request' }}
         uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
         with:
           sarif_file: scorecard-results.sarif

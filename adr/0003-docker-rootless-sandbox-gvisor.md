@@ -50,11 +50,35 @@ by policy.
 
 ### Positive
 
-- A container escape must first defeat gVisor's userspace kernel before reaching the host.
+- A guest-syscall-driven container escape must first defeat gVisor's userspace kernel
+  (the *Sentry*) before reaching a host syscall, narrowing the host kernel attack
+  surface to what the Sentry intentionally exposes.
 - New isolation tiers (Firecracker, AgentCore) slot in behind the same Protocol.
+
+### Residual attack surface
+
+This ADR does not claim more isolation than gVisor itself claims; see the
+[gVisor security model](https://gvisor.dev/docs/architecture_guide/security/).
+Specifically, gVisor:
+
+- Mediates guest syscalls into a userspace re-implementation, so direct exploitation
+  of seldom-audited Linux kernel subsystems (e.g. obscure netfilter, exotic filesystems)
+  from inside the sandbox is not reachable.
+- Does **not** eliminate bugs in the Sentry itself — the Sentry is a Go program with
+  its own attack surface and CVE history.
+- Does **not** replace defense-in-depth: the substrate still runs `--cap-drop=ALL`,
+  `--read-only`, a default seccomp profile on the host, `--network=none` by default,
+  and rootless Docker, so an escape must defeat the Sentry **and** the layered host
+  policy.
+- Does **not** protect against side channels, hardware vulnerabilities, or
+  misconfigurations of the egress allowlist (E4, E6).
+
+Switching `--platform=systrap` to `--platform=kvm` changes the boundary *mechanism*
+(virtualization extensions vs. seccomp `SECCOMP_RET_TRAP`), not the threat model —
+both run the same Sentry.
 
 ### Negative
 
 - gVisor adds syscall-interception overhead and incompatibility for exotic syscalls.
-  **Mitigated** by the `runc` fallback and per-spec opt-out. Split trigger: a workload that
-  runsc cannot run correctly forces a per-experiment runtime choice.
+  **Mitigated** by the `runc` fallback and per-spec opt-out. Split trigger: a workload
+  that runsc cannot run correctly forces a per-experiment runtime choice.

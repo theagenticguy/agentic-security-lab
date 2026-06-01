@@ -27,6 +27,10 @@ The asks competing here:
    browser-based dashboards) might want to rehearse the schema without standing up
    a full Postgres.
 
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
+
 ## Decision
 
 Ship **two production `LedgerPort` adapters**, plus a third documentation-only path:
@@ -97,3 +101,6 @@ for JS-side engineers but creates none for Python.
 - The ADR's "PGlite is documentation only" stance must hold: if someone ports the
   ledger to PGlite-via-Pyodide, we will own that complexity. The split trigger is
   any PR that adds PGlite as a runtime dependency to a Python package.
+
+
+</details>

@@ -14,6 +14,10 @@ description: "What is the problem, force, or constraint that motivates this deci
 What is the problem, force, or constraint that motivates this decision? Capture the
 technical, organizational, and EARS-invariant context. State the question this ADR answers.
 
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
+
 ## Decision
 
 The change we are proposing or have agreed to. State it in active voice: "We will ...".
@@ -38,3 +42,6 @@ EARS invariants, seams, or risks it protects.
 
 - What gets harder, what debt or coupling is incurred, and how it is mitigated (note the
   trigger that would prompt revisiting this decision).
+
+
+</details>

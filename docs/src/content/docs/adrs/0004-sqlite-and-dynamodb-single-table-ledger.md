@@ -12,13 +12,17 @@ description: "`asec-memory` owns the durable home for findings, hypotheses, and 
 ## Context
 
 `asec-memory` owns the durable home for findings, hypotheses, and false-positive
-suppressions (E9–E11). Local dev must stay zero-install (clone, `mise run test`, done), and
+suppressions ([E9](/agentic-security-lab/concepts/ears-invariants/#e9)–[E11](/agentic-security-lab/concepts/ears-invariants/#e11)). Local dev must stay zero-install (clone, `mise run test`, done), and
 the cloud path needs a backend that fans out across orchestrator workers and feeds the WORM
 audit pipeline. The orchestrator depends only on a `LedgerPort` Protocol, so the backend can
 swap without changing the contract. This ADR fixes the Protocol's access patterns and names
 the candidate backends; ADR-010 supersedes the *cloud default* choice (it picks asyncpg
 Postgres over DynamoDB), so this ADR records the DynamoDB single-table design as the
 in-scope-but-deferred alternative and freezes the shared access patterns.
+
+
+<details>
+<summary>Decision, alternatives, rationale, consequences</summary>
 
 ## Decision
 
@@ -64,3 +68,6 @@ contract change.
 - A DynamoDB single-table design is unforgiving once access patterns drift. **Mitigated** by
   freezing them here. Split trigger: a new read pattern that GSI1 cannot serve forces a
   schema (and ADR) revision.
+
+
+</details>

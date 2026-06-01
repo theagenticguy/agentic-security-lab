@@ -18,7 +18,7 @@ export default defineConfig({
     starlight({
       title: "agentic-security-lab",
       description:
-        "The trustworthy substrate for an autonomous security-research agent: sandbox, WORM audit, skill gate, threat model, confidence scorer, orchestrator.",
+        "Runtime, sandbox, ledger, and audit-log primitives for a code-analysis agent on Amazon Bedrock. Six asec-* Python packages plus 19 EARS invariants.",
 
       // Internal repo — edit link disabled.
       editLink: undefined,
@@ -75,7 +75,7 @@ export default defineConfig({
         starlightLlmsTxt({
           projectName: "agentic-security-lab",
           description:
-            "Eight-foundation substrate (sandbox, memory, skills, threat-model, confidence, orchestrator, SARIF, governance) collapsed into six asec-* packages for an autonomous security-research agent on Bedrock Opus 4.8.",
+            "Six asec-* Python packages (sandbox, memory, skills, threat-model, confidence, core) implementing the runtime, ledger, and audit-log layers for a Claude Opus 4.8 code-analysis agent on Amazon Bedrock. Contract: 19 EARS invariants.",
           promote: ["index*", "concepts/*", "guides/*"],
           exclude: ["adrs/*"],
         }),

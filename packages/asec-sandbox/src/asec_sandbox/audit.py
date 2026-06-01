@@ -1,18 +1,18 @@
-"""WormAuditWriter — append-only, hash-chained JSONL audit log (E12, E13).
+"""WormAuditWriter — append-only, hash-chained JSON Lines audit log (E12, E13).
 
 Each line is a JSON object with fields::
 
     {ts, seq, session, actor, action, payload, prev_hash, hash}
 
 The chain is tamper-evident: ``hash = sha256(canonical_json(line_without_hash))`` and
-each line carries the previous line's ``hash`` as its ``prev_hash``. The first line uses
-the sentinel ``prev_hash="GENESIS"``. Canonical JSON is RFC 8785-ish: keys sorted, no
-insignificant whitespace, UTF-8, ``ensure_ascii`` disabled so the encoding is stable and
-content-addressable. The file is opened in append mode only; writes serialize through an
-``asyncio.Lock`` so concurrent ``append`` calls cannot interleave the chain.
+each line carries the previous line's ``hash`` as its ``prev_hash``. The first line
+uses the sentinel ``prev_hash="GENESIS"``. The canonicalization conforms to a subset
+of RFC 8785 (JSON Canonicalization Scheme); see ``canonical_json`` and ADR-005 for the
+two known deviations. The file is opened in append mode only; writes serialize through
+an ``asyncio.Lock`` so concurrent ``append`` calls cannot interleave the chain.
 
-``verify_chain(path)`` re-walks the file, recomputes each line's hash, and checks that the
-``prev_hash`` linkage is intact, returning the parsed entries on success.
+``verify_chain(path)`` re-walks the file, recomputes each line's hash, and checks that
+the ``prev_hash`` linkage is intact, returning the parsed entries on success.
 """
 
 from __future__ import annotations
@@ -32,7 +32,16 @@ GENESIS = "GENESIS"
 
 
 def canonical_json(obj: dict[str, Any]) -> str:
-    """Serialize ``obj`` to RFC 8785-ish canonical JSON (sorted keys, no whitespace)."""
+    """Serialize ``obj`` to a canonical JSON form for hashing (sorted keys, no whitespace).
+
+    Conforms to a subset of RFC 8785 (the JSON Canonicalization Scheme). Two
+    documented deviations: number formatting falls back to Python's default
+    (RFC 8785 §3.2 mandates the I-JSON / ES6 algorithm — fine for integers,
+    not bit-for-bit guaranteed for edge-case floats; the audit log carries
+    no float fields today), and ``ensure_ascii=False`` emits literal UTF-8
+    above U+007F rather than ``\\u`` escapes (legal JSON, byte-different from
+    a strict JCS encoder). See ADR-005 §Decision for the full rationale.
+    """
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
