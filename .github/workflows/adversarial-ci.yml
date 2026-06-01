@@ -1,0 +1,59 @@
+# ──────────────────────────────────────────────────────────────
+# Adversarial CI — the §16 self-test gate
+# ──────────────────────────────────────────────────────────────
+# Re-runs the orchestrator against the four canary classes
+# (honey-bugs, prompt-injection, honey-secret, tool-call) and
+# fails on any honey-bug recall regression, prompt-injection
+# action, honey-secret exfiltration, or out-of-scope tool call.
+# Triggers on every change to the substrate, skills, or corpus,
+# plus a weekly cron. All third-party actions are pinned by SHA.
+# ──────────────────────────────────────────────────────────────
+name: Adversarial CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "apps/**"
+      - ".claude/skills/**"
+      - "tests/adversarial/**"
+  schedule:
+    # Weekly, Monday 06:00 UTC.
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  adversarial:
+    name: Adversarial canary corpus
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - name: Install mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v4.0.1
+        with:
+          install: true
+          cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        with:
+          enable-cache: true
+      - name: Sync workspace from lockfile
+        run: uv sync --locked --all-packages
+      - name: Run adversarial corpus
+        run: mise run adversarial
+      - name: Upload adversarial-ci report
+        # Always upload so a failing gate still leaves the per-class verdicts
+        # for triage.
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: adversarial-ci-report
+          path: adversarial-ci-report.json
+          if-no-files-found: warn
