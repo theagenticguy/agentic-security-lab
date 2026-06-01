@@ -23,6 +23,18 @@ security = ["bandit", "pip-audit", "checkov"]
 
 [tool.ruff]
 target-version = "py313"
+# The adversarial canary corpus is intentionally-vulnerable substrate (planted
+# CWEs, hardcoded fake secrets, %-formatted SQL). Lint the harness (runner.py /
+# test_adversarial.py) but not the planted-bug source files themselves.
+# force-exclude so the corpus is skipped even when ruff is invoked with explicit
+# paths (e.g. `ruff check tests/`), not just on a bare `ruff check .`.
+force-exclude = true
+extend-exclude = [
+    "tests/adversarial/honey_bugs",
+    "tests/adversarial/prompt_injection",
+    "tests/adversarial/honey_secrets",
+    "tests/adversarial/tool_canaries",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
@@ -41,6 +53,9 @@ exclude = [
     # Intentionally-vulnerable demo corpus (Flask handlers, flask not a workspace dep).
     # Excluded from bandit + pyright; it is test fixture data, not substrate code.
     "apps/pr-reviewer/fixtures",
+    # Intentionally-adversarial canary corpus (planted bugs, secrets, injection
+    # strings). Adversarial test substrate, not substrate code.
+    "tests/adversarial",
 ]
 
 [tool.commitizen]
@@ -49,7 +64,7 @@ tag_format = "v$version"
 version_files = ["pyproject.toml:version"]
 
 [tool.pytest.ini_options]
-testpaths = ["packages", "apps", "infra/cdk"]
+testpaths = ["packages", "apps", "infra/cdk", "tests"]
 # importlib mode lets identically-named test modules (test_smoke.py) coexist across
 # the workspace without package-name collisions.
 # `-m "not live"` keeps CI off the network: the live Bedrock E2E test is opt-in via
@@ -58,6 +73,7 @@ addopts = "-q --cov-report=term --cov-report=xml --import-mode=importlib -m \"no
 asyncio_mode = "auto"
 markers = [
     "live: end-to-end tests that hit real Bedrock (skipped unless RUN_LIVE_BEDROCK=1)",
+    "adversarial: the §16 honey-bug / injection / secret / tool-call canary corpus.",
 ]
 
 [tool.coverage.run]

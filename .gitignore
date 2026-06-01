@@ -77,3 +77,7 @@ Icon
 *~
 .\#*
 apps/pr-reviewer/fixtures/.asec-run/
+
+# Adversarial-CI generated artifacts (written by `mise run adversarial`).
+.asec-adversarial/
+adversarial-ci-report.json

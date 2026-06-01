@@ -17,6 +17,10 @@ run = "uv run pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo"
 [tasks.test]
 run = "uv run pytest"
 
+[tasks.adversarial]
+description = "Run the adversarial CI corpus against the orchestrator"
+run = "uv run pytest tests/adversarial -q"
+
 [tasks.lint]
 run = "uv run ruff check ."
 
