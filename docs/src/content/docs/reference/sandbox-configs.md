@@ -1,14 +1,37 @@
 ---
-title: Sandbox configs
-description: Copy-paste-ready sandbox definitions, least to most isolated. The key reference for engineers.
+title: Sandbox configurations
+description: Copy-paste-ready sandbox definitions, least to most isolated.
 ---
 
-Copy/paste-ready sandbox definitions for the security-research agent, ordered from least
-to most isolated. Grounded in Docker, mise, devcontainer-spec, Canonical Workshop, and
-Firecracker docs. These back `asec-sandbox` and enforce E3 (`--network=none` default) and
-E12 (WORM audit).
+Copy-paste-ready sandbox definitions, ordered from least to most isolated.
+Grounded in current Docker, `mise`, devcontainer-spec, Canonical Workshop, and
+Firecracker documentation. These back the `asec-sandbox` package and enforce
+[E3](/agentic-security-lab/concepts/ears-invariants/#e3) (`--network=none`
+default) and [E12](/agentic-security-lab/concepts/ears-invariants/#e12)
+(Write-Once-Read-Many — WORM — audit log).
+
+The isolation comparison table at the bottom is the single most useful page on
+this site for picking a backend. Code-block bodies collapse so the comparison
+fits on screen first.
+
+## Isolation comparison
+
+| Property | Docker (hardened) | LXD / Workshop | Firecracker | Full VM (KVM/QEMU) |
+|---|---|---|---|---|
+| Boot time | ~50–200 ms | ~0.5–2 s | ~125 ms | 10–30 s |
+| Blast radius | Shared host kernel (gVisor narrows the syscall surface) | Shared kernel, unprivileged user namespaces | Own guest kernel; minimal Virtual Machine Monitor (VMM) | Own kernel + full device model |
+| Build complexity | Low | Low–medium | Medium | High |
+| Per-instance memory | 10–50 MiB | 30–80 MiB | ~5 MiB VMM + guest RAM | 200+ MiB + guest RAM |
+| Parallel ceiling | Thousands | Hundreds–thousands | Thousands (Lambda-proven) | Tens–low hundreds |
+
+Linux Container Daemon (LXD) is Canonical's system-container manager. KVM is the
+Kernel-based Virtual Machine; QEMU is the Quick Emulator user-space VMM that
+typically drives KVM.
 
 ## Dockerfile — agentic-security image
+
+<details>
+<summary>Show Dockerfile</summary>
 
 ```dockerfile
 FROM ubuntu:24.04
@@ -38,10 +61,16 @@ WORKDIR /work
 ENTRYPOINT ["mise","exec","--"]
 ```
 
-Non-root `agent` (UID 10001), tools on `PATH`. ASan is invoked at build time
-(`clang -fsanitize=address`), not a package.
+Non-root `agent` (User Identifier — UID — 10001), tools on `PATH`.
+AddressSanitizer (ASan) is invoked at build time (`clang -fsanitize=address`),
+not a package.
 
-## mise.toml — pinned toolchain + tasks
+</details>
+
+## `mise.toml` — pinned toolchain + tasks
+
+<details>
+<summary>Show mise.toml</summary>
 
 ```toml
 [tools]
@@ -73,10 +102,16 @@ description = "Generate a fuzz harness via the agent SDK"
 run = "uv run python tools/gen_harness.py --src src/ --out fuzz/"
 ```
 
-`mise run scan|fuzz|harness-gen`. Version pins make the environment reproducible across
-machines.
+`mise run scan|fuzz|harness-gen`. Version pins make the environment reproducible
+across machines. The Python version pinned in this snippet is illustrative; the
+repo's actual `mise.toml` pins Python 3.13.
 
-## devcontainer.json — hardened runArgs
+</details>
+
+## `devcontainer.json` — hardened `runArgs`
+
+<details>
+<summary>Show devcontainer.json</summary>
 
 ```jsonc
 {
@@ -102,11 +137,16 @@ machines.
 }
 ```
 
-`runArgs` are passed verbatim to `docker run`. `--read-only` root + writable `tmpfs`
-scratch means any agent-written payload is wiped on teardown. Network is off by default
-(see the egress allowlist below to add scoped egress).
+`runArgs` are passed verbatim to `docker run`. `--read-only` root plus writable
+`tmpfs` scratch means any agent-written payload is wiped on teardown. Network
+is off by default; see the egress allowlist below to add scoped egress.
 
-## workshop.yaml — Canonical Workshop environment
+</details>
+
+## `workshop.yaml` — Canonical Workshop environment
+
+<details>
+<summary>Show workshop.yaml</summary>
 
 ```yaml
 # Unprivileged LXD system container (LXD >= 6.8).
@@ -133,11 +173,17 @@ provision:
   - mise run scan
 ```
 
-Workshop runs each environment in an unprivileged LXD container; the snapd-inspired
-`interfaces` system grants only the host resources explicitly listed, so omitting a
-`display` interface denies GUI access entirely.
+Workshop runs each environment in an unprivileged LXD container; the
+snapd-inspired `interfaces` system grants only the host resources explicitly
+listed, so omitting a `display` interface denies graphical-display access
+entirely.
+
+</details>
 
 ## Firecracker — no-network microVM with vsock
+
+<details>
+<summary>Show Firecracker boot script</summary>
 
 ```bash
 #!/usr/bin/env bash
@@ -154,20 +200,16 @@ put vsock '{"vsock_id":"v1","guest_cid":3,"uds_path":"/tmp/fc.vsock"}'
 put actions '{"action_type":"InstanceStart"}'
 ```
 
-Read-only rootfs, no `network-interfaces` call (so no NIC at all), and a single vsock UDS
+Read-only root filesystem, no `network-interfaces` call (so no virtual network
+interface card at all), and a single virtio-socket Unix Domain Socket (vsock UDS)
 for control. Firecracker boots in ~125 ms with ~5 MiB VMM overhead.
 
-## Isolation comparison
-
-| Property | Docker (hardened) | LXD / Workshop | Firecracker | Full VM (KVM/QEMU) |
-|---|---|---|---|---|
-| Boot time | ~50–200 ms | ~0.5–2 s | ~125 ms | 10–30 s |
-| Blast radius | Shared host kernel | Shared kernel, unprivileged userns | Own guest kernel; minimal VMM | Own kernel + full device model |
-| Build complexity | Low | Low–medium | Medium | High |
-| Per-instance memory | 10–50 MiB | 30–80 MiB | ~5 MiB VMM + guest RAM | 200+ MiB + guest RAM |
-| Parallel ceiling | Thousands | Hundreds–thousands | Thousands (Lambda-proven) | Tens–low hundreds |
+</details>
 
 ## Egress allowlist
+
+<details>
+<summary>Show tinyproxy + allowlist + docker run invocation</summary>
 
 ```ini
 # tinyproxy.conf  (sidecar; agent container joins its netns)
@@ -195,10 +237,19 @@ docker run --network=none \
 
 `FilterDefaultDeny Yes` makes the allowlist authoritative.
 
-## WORM audit log line
+</details>
+
+## WORM audit-log line
+
+A single line of the hash-chained JSON Lines audit log
+([E12](/agentic-security-lab/concepts/ears-invariants/#e12)). The chain format is
+fixed in [ADR-005](/agentic-security-lab/adrs/0005-worm-audit-hash-chain/).
+
+<details>
+<summary>Show example audit-log entry</summary>
 
 ```json
 {"ts":"2026-05-29T14:03:21.778Z","seq":4412,"session":"sec-agent-7f3a","actor":"agent:claude","sandbox":{"kind":"firecracker","id":"fc-9b21","net":"none"},"action":"tool_call","tool":"Bash","args":{"cmd":"cargo fuzz run target -- -max_total_time=300"},"egress":[],"exit_code":0,"duration_ms":300214,"artifacts":["fuzz/crash-a1b2"],"prev_hash":"sha256:6f1c…d09","hash":"sha256:b740…e22"}
 ```
 
-Append-only JSONL with hash chaining for tamper evidence (S3 Object Lock or `chattr +a`).
+</details>
