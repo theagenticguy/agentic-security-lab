@@ -8,8 +8,9 @@ import remarkGfm from "remark-gfm";
 
 // https://astro.build/config
 export default defineConfig({
-  // Placeholder site/base — update to the real GitHub Pages URL on first deploy.
-  site: "https://example.invalid/",
+  // Pages site is served at https://theagenticguy.github.io/agentic-security-lab/.
+  // `site` feeds canonical URLs, sitemap absolute URLs, and Open Graph metadata.
+  site: "https://theagenticguy.github.io",
   base: "/agentic-security-lab",
 
   integrations: [
@@ -29,7 +30,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/lalsaado/agentic-security-lab",
+          href: "https://github.com/theagenticguy/agentic-security-lab",
         },
       ],
 
