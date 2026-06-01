@@ -1,0 +1,10 @@
+name: agentic-security-lab CodeQL config
+
+# Exclude intentionally vulnerable fixtures and the adversarial canary corpus
+# from CodeQL's signal — these files are seeded with SQLi/XSS/path-injection
+# *on purpose* so the pr-reviewer agent has something to find. They are not
+# real vulnerabilities in this codebase.
+paths-ignore:
+  - "apps/pr-reviewer/fixtures/**"
+  - "**/adversarial/**"
+  - "**/fixtures/**"
