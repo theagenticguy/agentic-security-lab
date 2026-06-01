@@ -56,6 +56,9 @@ exclude = [
     # Intentionally-adversarial canary corpus (planted bugs, secrets, injection
     # strings). Adversarial test substrate, not substrate code.
     "tests/adversarial",
+    # Intentionally-vulnerable variant-hunter corpus (an unfixed SQLi the hunter must
+    # find) + the seed bug shape. Test fixture data, not substrate code.
+    "apps/nightly-variant-hunter/fixtures",
 ]
 
 [tool.commitizen]

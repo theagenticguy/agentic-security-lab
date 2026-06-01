@@ -9,6 +9,7 @@
     "**/cdk.out",
     "infra/cdk",
     "apps/pr-reviewer/fixtures",
-    "tests/adversarial"
+    "tests/adversarial",
+    "apps/nightly-variant-hunter/fixtures"
   ]
 }
