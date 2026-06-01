@@ -13,6 +13,13 @@ on:
       - "adr/**"
       - "scripts/sync_adrs.py"
       - ".github/workflows/docs-deploy.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "adr/**"
+      - "scripts/sync_adrs.py"
+      - ".github/workflows/docs-deploy.yml"
   workflow_dispatch:
 
 permissions:
@@ -54,6 +61,10 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
+    # Only push and workflow_dispatch deploy. PR runs build the site (so a
+    # broken build blocks the PR) but skip the deploy step — Pages has one
+    # production environment and PR builds are previews, not deploys.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
