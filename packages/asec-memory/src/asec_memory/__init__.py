@@ -12,6 +12,7 @@ from asec_memory.models import (
     Reachability,
     Suppression,
 )
+from asec_memory.report import ReportAgent, ReportAgentImpl
 from asec_memory.sarif import to_sarif_log, to_sarif_run
 
 __version__ = "0.1.0"
@@ -26,6 +27,8 @@ __all__ = [
     "HypothesisBoard",
     "LedgerPort",
     "Reachability",
+    "ReportAgent",
+    "ReportAgentImpl",
     "SQLiteLedger",
     "Suppression",
     "__version__",
