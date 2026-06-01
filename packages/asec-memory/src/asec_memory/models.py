@@ -88,6 +88,8 @@ class AsecProperties(_Frozen):
     priority: UnitFloat = 0.0
     confidence: UnitFloat = 0.0
     hypothesis_id: str | None = None
+    variants_of: str | None = None
+    """The seed finding id this result is a variant of (Big Sleep variant mode, E18/E19)."""
 
 
 class Finding(_Frozen):

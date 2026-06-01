@@ -1,0 +1,17 @@
+commit 0fixedseed0000000000000000000000000000000
+Author: Laith Al-Saadoon <lalsaado@amazon.com>
+Date:   Mon May 25 10:00:00 2026 +0000
+
+    fix(api): parameterize the users SQL query (CWE-89)
+
+diff --git a/src/api/users.py b/src/api/users.py
+index 1111111..2222222 100644
+--- a/src/api/users.py
++++ b/src/api/users.py
+@@ -3,5 +3,5 @@
+
+
+ def get_user(cursor, name):
+-    cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
++    cursor.execute("SELECT * FROM users WHERE name = ?", (name,))
+     return cursor.fetchone()

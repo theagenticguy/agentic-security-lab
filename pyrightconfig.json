@@ -8,6 +8,7 @@
     "**/__pycache__",
     "**/cdk.out",
     "infra/cdk",
-    "apps/pr-reviewer/fixtures"
+    "apps/pr-reviewer/fixtures",
+    "apps/nightly-variant-hunter/fixtures"
   ]
 }

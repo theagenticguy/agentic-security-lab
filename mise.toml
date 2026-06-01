@@ -14,6 +14,10 @@ run = "uv sync --all-packages"
 [tasks.dev]
 run = "uv run pr-reviewer review ./apps/pr-reviewer/fixtures/tiny-repo"
 
+[tasks."dev:variant-hunter"]
+description = "Run nightly variant hunter on a small fixture"
+run = "uv run nightly-variant-hunter hunt --repo apps/nightly-variant-hunter/fixtures/tiny-repo --since 'now' --max-budget-usd 1.0"
+
 [tasks.test]
 run = "uv run pytest"
 

@@ -41,6 +41,9 @@ exclude = [
     # Intentionally-vulnerable demo corpus (Flask handlers, flask not a workspace dep).
     # Excluded from bandit + pyright; it is test fixture data, not substrate code.
     "apps/pr-reviewer/fixtures",
+    # Intentionally-vulnerable variant-hunter corpus (an unfixed SQLi the hunter must
+    # find) + the seed bug shape. Test fixture data, not substrate code.
+    "apps/nightly-variant-hunter/fixtures",
 ]
 
 [tool.commitizen]
