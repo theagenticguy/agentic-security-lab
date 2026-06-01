@@ -15,6 +15,7 @@ dependencies = [
     "asec-sandbox",
     "asec-threat-model",
     "asec-skills",
+    "asec-confidence",
     "anyio>=4.13.0",
 ]
 
@@ -30,3 +31,4 @@ asec-memory = { workspace = true }
 asec-sandbox = { workspace = true }
 asec-threat-model = { workspace = true }
 asec-skills = { workspace = true }
+asec-confidence = { workspace = true }

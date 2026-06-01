@@ -7,6 +7,7 @@ no Bedrock). The contract under test is the thin adapter seam, not the SDK itsel
 from __future__ import annotations
 
 import importlib
+import os
 import sys
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
@@ -74,6 +75,14 @@ class _ClaudeAgentOptions:
     hooks: Any = None
 
 
+@dataclass
+class _AgentDefinition:
+    description: str
+    prompt: str
+    tools: list[str]
+    model: str | None = None
+
+
 class _FakeSDK:
     TextBlock = _TextBlock
     ToolUseBlock = _ToolUseBlock
@@ -82,6 +91,7 @@ class _FakeSDK:
     ResultMessage = _ResultMessage
     HookMatcher = _HookMatcher
     ClaudeAgentOptions = _ClaudeAgentOptions
+    AgentDefinition = _AgentDefinition
 
     def __init__(self, messages: list[Any]) -> None:
         self._messages = messages
@@ -206,7 +216,24 @@ async def test_normalization_result_tokens() -> None:
     assert out[0].result_text == "final"
 
 
-async def test_spawn_subagents_is_noop_shim() -> None:
+async def test_spawn_subagents_maps_specs_to_sdk_agents(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from asec_core import AgentDefinition
+
     _install_fake([])
+    monkeypatch.delenv("CLAUDE_CODE_ENABLE_TASKS", raising=False)
     rt = ClaudeAgentRuntime()
-    assert await rt.spawn_subagents([{"role": "x"}]) == []
+    spec = AgentDefinition(
+        name="sqli-worker",
+        description="SQLi worker",
+        cwe_id="CWE-89",
+        system_prompt_extra="hunt sqli",
+        allowed_tools=("Read", "Grep"),
+    )
+    out = await rt.spawn_subagents([spec])
+    # Task tool is enabled and one SDK AgentDefinition is produced per spec.
+    assert os.environ["CLAUDE_CODE_ENABLE_TASKS"] == "1"
+    assert len(out) == 1
+    assert out[0].description == "SQLi worker"
+    assert out[0].tools == ["Read", "Grep"]

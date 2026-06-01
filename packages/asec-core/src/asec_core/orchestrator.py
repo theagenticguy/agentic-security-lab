@@ -17,15 +17,26 @@ against `settings.max_budget_usd`, emitting `BudgetWarning` at the 50/80/100% th
 
 from __future__ import annotations
 
+import asyncio
 import json
+import os
 import re
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import anyio.to_thread
 import structlog
-from asec_memory.models import Finding, FindingLocation
+from asec_confidence import BaselineStrategy, bm25_recall
+from asec_confidence import ConfidenceInputs as ScoringInputs
+from asec_memory.board import HypothesisBoard
+from asec_memory.models import (
+    ConfidenceInputs,
+    Finding,
+    FindingLocation,
+    Hypothesis,
+)
 from asec_memory.sarif import to_sarif_log
 from asec_sandbox.events import (
     BudgetWarning,
@@ -40,6 +51,7 @@ from asec_sandbox.events import (
 )
 from pydantic import BaseModel, ConfigDict
 
+from .agents import AgentDefinition, default_cwe_workers, pattern_match_score
 from .governance import GovernanceGate
 from .killswitch import KillSwitch
 from .runtime import AgentRuntime, RuntimeMessage
@@ -94,7 +106,13 @@ class Orchestrator:
         corpus_files: dict[str, str] | None = None,
         session: str = "review",
         max_budget_usd: float = 5.0,
+        workers: Sequence[AgentDefinition] | None = None,
+        board: HypothesisBoard | None = None,
+        confidence: BaselineStrategy | None = None,
+        entry_point_files: Sequence[str] | None = None,
     ) -> None:
+        # The SDK Task tool must be available before any subagent fan-out (PLAN §2).
+        os.environ.setdefault("CLAUDE_CODE_ENABLE_TASKS", "1")
         self._runtime = runtime
         self._sandbox = sandbox
         self._ledger = ledger
@@ -106,6 +124,18 @@ class Orchestrator:
         self._corpus_files = dict(corpus_files or {})
         self._session = session
         self._max_budget_usd = max_budget_usd
+        self._workers: tuple[AgentDefinition, ...] = tuple(
+            workers if workers is not None else default_cwe_workers()
+        )
+        self._board = board
+        self._confidence = confidence or BaselineStrategy()
+        # Entry points anchor the deterministic reachability proxy: the closer a
+        # finding's file is (by name) to an entry point, the shorter its taint path.
+        self._entry_point_files: tuple[str, ...] = tuple(
+            entry_point_files
+            if entry_point_files is not None
+            else tuple(sorted(self._corpus_files))[:1]
+        )
 
     # ----- public entry points -------------------------------------------------------
 
@@ -172,8 +202,14 @@ class Orchestrator:
                     last_text = msg.result_text
                 await self._bridge_budget(events, msg, warned)
 
-        # 4. Parse findings from the final text, persist + emit.
-        findings = self._parse_findings(last_text)
+        # 4. Parse findings from the final text. When a shared board is configured the
+        #    Day-5 per-CWE fan-out + confidence dispatch supersedes the single-query parse;
+        #    otherwise the Day-3 single-query path stands.
+        if self._board is not None:
+            findings = await self.spawn_subagents(self._workers, corpus_section, events=events)
+        else:
+            findings = self._parse_findings(last_text)
+
         for finding in findings:
             await self._ledger.add_finding(finding)
             await self._emit(
@@ -187,6 +223,250 @@ class Orchestrator:
             )
 
         return await self._finalize(events, findings, status="pass")
+
+    # ----- fan-out (Day 5) -----------------------------------------------------------
+
+    async def spawn_subagents(
+        self,
+        specs: Sequence[AgentDefinition],
+        corpus_section: str,
+        *,
+        events: list[ProgressEvent],
+    ) -> list[Finding]:
+        """Concurrently dispatch one worker per spec, dedup, correlate, and dispatch.
+
+        Each worker runs its own `runtime.query()` on a CWE-scoped prompt slice. All
+        workers write to a single shared `HypothesisBoard` keyed by
+        ``dedup_key = "{cwe}:{file}:{range}"`` (first writer wins; dupes recorded, not
+        re-emitted). A single correlation `query()` then proposes chain hypotheses,
+        attaching `variants_of` linkage. Finally every unique finding is routed through
+        `BaselineStrategy` to a tier-appropriate dispatch.
+        """
+        await self._emit(
+            events, PhaseTransition(session=self._session, from_phase="find", to_phase="fanout")
+        )
+
+        results = await asyncio.gather(*(self._run_worker(spec, corpus_section) for spec in specs))
+
+        board = self._board
+        unique: dict[str, Finding] = {}
+        spec_by_finding: dict[str, AgentDefinition] = {}
+        for spec, parsed in zip(specs, results, strict=True):
+            for finding in parsed:
+                key = self._dedup_key(spec, finding)
+                if key in unique:
+                    # Dupe: record on the board but do not re-emit.
+                    if board is not None:
+                        board.append(
+                            Hypothesis(
+                                id=f"dup-{uuid.uuid4().hex[:8]}",
+                                finding_id=unique[key].id,
+                                statement=f"duplicate of {key} from {spec.name}",
+                                status="refuted",
+                            )
+                        )
+                    continue
+                unique[key] = finding
+                spec_by_finding[finding.id] = spec
+                if board is not None:
+                    board.append(
+                        Hypothesis(
+                            id=f"hyp-{uuid.uuid4().hex[:8]}",
+                            finding_id=finding.id,
+                            statement=f"{spec.cwe_id} candidate at {key}",
+                            status="open",
+                        )
+                    )
+
+        unique_findings = list(unique.values())
+
+        # Correlation pass: a single LLM call proposes chain hypotheses across findings.
+        linkage = await self._correlate(unique_findings)
+
+        scored: list[Finding] = []
+        for finding in unique_findings:
+            spec = spec_by_finding[finding.id]
+            variants = tuple(linkage.get(finding.id, ()))
+            scored_finding = await self._dispatch_confidence(finding, spec, variants, events)
+            scored.append(scored_finding)
+
+        await self._emit(
+            events,
+            PhaseTransition(session=self._session, from_phase="fanout", to_phase="correlate"),
+        )
+        return scored
+
+    async def _run_worker(self, spec: AgentDefinition, corpus_section: str) -> list[Finding]:
+        """Run one CWE worker's own `query()` on a scoped prompt slice."""
+        prompt = "\n\n".join(
+            [
+                self._skill.body.strip(),
+                f"## Specialized worker: {spec.name} ({spec.cwe_id})",
+                spec.system_prompt_extra,
+                "## Corpus under review",
+                corpus_section,
+            ]
+        )
+        last_text: str | None = None
+        async for msg in self._runtime.query(prompt, options=None):
+            if msg.kind == "text" and msg.text:
+                last_text = msg.text
+            elif msg.kind == "result" and msg.result_text:
+                last_text = msg.result_text
+        return self._parse_findings(last_text)
+
+    @staticmethod
+    def _dedup_key(spec: AgentDefinition, finding: Finding) -> str:
+        loc = finding.location
+        rng = f"{loc.start_line}-{loc.end_line or loc.start_line}"
+        cwe = finding.cwe or spec.cwe_id
+        return f"{cwe}:{loc.uri}:{rng}"
+
+    async def _correlate(self, findings: list[Finding]) -> dict[str, list[str]]:
+        """One LLM call proposes chain hypotheses linking findings; returns id->variants.
+
+        Findings that share an inferred chain are mutually linked via `variants_of`. The
+        model returns a JSON array of ``{"chain": [finding_id, ...]}`` objects; each id in
+        a chain links to the other ids. Falls back to an empty linkage if no chain parses.
+        """
+        if len(findings) < 2:
+            return {}
+        catalog = json.dumps([{"id": f.id, "cwe": f.cwe, "uri": f.location.uri} for f in findings])
+        prompt = (
+            "Given these security findings, propose attack-chain hypotheses linking "
+            "findings that compose into a single exploit (e.g. IDOR->path-traversal->RCE). "
+            'Reply with a single fenced ```json block of [{"chain": [finding_id, ...]}].\n'
+            f"FINDINGS: {catalog}"
+        )
+        last_text: str | None = None
+        async for msg in self._runtime.query(prompt, options=None):
+            if msg.kind == "text" and msg.text:
+                last_text = msg.text
+            elif msg.kind == "result" and msg.result_text:
+                last_text = msg.result_text
+
+        linkage: dict[str, list[str]] = {}
+        chains = self._parse_chains(last_text)
+        valid_ids = {f.id for f in findings}
+        for chain in chains:
+            members = [fid for fid in chain if fid in valid_ids]
+            for fid in members:
+                others = [o for o in members if o != fid]
+                linkage.setdefault(fid, [])
+                for o in others:
+                    if o not in linkage[fid]:
+                        linkage[fid].append(o)
+        return linkage
+
+    def _parse_chains(self, text: str | None) -> list[list[str]]:
+        if not text:
+            return []
+        matches = _JSON_BLOCK.findall(text)
+        if not matches:
+            return []
+        try:
+            parsed: Any = json.loads(matches[-1])
+        except json.JSONDecodeError:
+            return []
+        records: list[Any] = cast("list[Any]", parsed if isinstance(parsed, list) else [parsed])
+        chains: list[list[str]] = []
+        for rec in records:
+            if isinstance(rec, dict):
+                chain = cast("dict[str, Any]", rec).get("chain")
+                if isinstance(chain, list):
+                    chains.append([str(c) for c in cast("list[Any]", chain)])
+        return chains
+
+    async def _dispatch_confidence(
+        self,
+        finding: Finding,
+        spec: AgentDefinition,
+        variants: tuple[str, ...],
+        events: list[ProgressEvent],
+    ) -> Finding:
+        """Build `ConfidenceInputs`, score, and route to a tier-appropriate dispatch."""
+        snippet = finding.location.snippet or finding.message
+        pattern = pattern_match_score(snippet, spec.pattern_keywords)
+        recall = bm25_recall(finding.message, await self._past_claims())
+        reach = self._reachability(finding)
+
+        score = await self._confidence.score(
+            ScoringInputs(pattern_match=pattern, memory_recall=recall, reachability=reach)
+        )
+
+        conf_inputs = ConfidenceInputs(
+            pattern_match=pattern, memory_recall=recall, reachability=reach
+        )
+        asec = finding.asec.model_copy(
+            update={
+                "confidence": score.score,
+                "confidence_inputs": conf_inputs,
+                "confidence_tier": score.tier,
+                "dispatch": score.dispatch,
+                "variants_of": variants,
+            }
+        )
+        updated = finding.model_copy(update={"asec": asec})
+
+        if score.tier == "high":
+            # Use the specialized worker's finding directly.
+            pass
+        elif score.tier == "medium":
+            await self._emit(
+                events,
+                HypothesisOpened(
+                    session=self._session,
+                    hypothesis_id=f"parallel-shell-{finding.id}",
+                    statement=f"medium confidence: marked for parallel-shell ({finding.rule_id})",
+                ),
+            )
+        elif score.tier == "low":
+            await self._emit(
+                events,
+                HypothesisOpened(
+                    session=self._session,
+                    hypothesis_id=f"swarm-{finding.id}",
+                    statement=f"low confidence: marked for swarm ({finding.rule_id})",
+                ),
+            )
+        else:  # very_low -> runtime authorship gate (raised/refused)
+            await self._emit(
+                events,
+                GateDecision(
+                    session=self._session,
+                    gate="confidence",
+                    decision="fail",
+                    reason="runtime_authorship_required",
+                ),
+            )
+        return updated
+
+    async def _past_claims(self) -> list[str]:
+        """Past findings in this repo (from the ledger) as the BM25 recall corpus."""
+        try:
+            prior = await self._ledger.list_findings()
+        except Exception:  # pragma: no cover - defensive
+            return []
+        return [f"{f.rule_id} {f.message}" for f in prior]
+
+    def _reachability(self, finding: Finding) -> float:
+        """Deterministic taint-hop proxy: import depth from the nearest entry point.
+
+        Counts path-segment distance between the finding's file and the closest
+        entry-point file; closer files are more reachable. Normalized to [0, 1].
+        """
+        if not self._entry_point_files:
+            return 0.5
+        target = finding.location.uri.split("/")
+        best = min(self._path_distance(target, ep.split("/")) for ep in self._entry_point_files)
+        # 0 hops -> 1.0; each hop decays reachability; floor at 0.1.
+        return max(0.1, 1.0 / (1.0 + best))
+
+    @staticmethod
+    def _path_distance(a: list[str], b: list[str]) -> int:
+        """Symmetric difference in path segments as a cheap call-graph-depth proxy."""
+        sa, sb = set(a), set(b)
+        return len(sa.symmetric_difference(sb))
 
     # ----- bridges -------------------------------------------------------------------
 

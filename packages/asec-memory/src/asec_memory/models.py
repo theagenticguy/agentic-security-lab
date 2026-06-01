@@ -74,6 +74,18 @@ class AssetWeight(_Frozen):
     asset_id: str | None = None
 
 
+class ConfidenceInputs(_Frozen):
+    """The three normalised confidence axes, recorded into the ``asec.v1`` bag.
+
+    Mirrors :class:`asec_confidence.ConfidenceInputs` but lives here so the SARIF
+    property bag stays self-contained (asec-memory does not depend on the scorer).
+    """
+
+    pattern_match: UnitFloat = 0.0
+    memory_recall: UnitFloat = 0.0
+    reachability: UnitFloat = 0.0
+
+
 class AsecProperties(_Frozen):
     """The ``asec.v1`` SARIF property bag attached to every result.
 
@@ -87,6 +99,10 @@ class AsecProperties(_Frozen):
     asset: AssetWeight = AssetWeight()
     priority: UnitFloat = 0.0
     confidence: UnitFloat = 0.0
+    confidence_inputs: ConfidenceInputs | None = None
+    confidence_tier: str | None = None
+    dispatch: str | None = None
+    variants_of: tuple[str, ...] = ()
     hypothesis_id: str | None = None
 
 
