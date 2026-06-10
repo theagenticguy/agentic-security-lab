@@ -1459,7 +1459,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aws-cdk-lib", specifier = ">=2.258.1" },
+    { name = "aws-cdk-lib", specifier = ">=2.180.0" },
     { name = "cdk-nag", specifier = ">=2.27" },
     { name = "constructs", specifier = ">=10.0.0,<11.0.0" },
     { name = "pydantic", specifier = ">=2.7" },
