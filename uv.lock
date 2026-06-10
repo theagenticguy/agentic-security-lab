@@ -281,7 +281,7 @@ requires-dist = [
     { name = "bm25s", specifier = ">=0.2" },
     { name = "opentelemetry-api", specifier = ">=1.27" },
     { name = "pydantic", specifier = ">=2.7" },
-    { name = "structlog", specifier = ">=26.1.0" },
+    { name = "structlog", specifier = ">=24" },
 ]
 
 [[package]]
@@ -318,7 +318,7 @@ requires-dist = [
     { name = "opentelemetry-api", specifier = ">=1.27" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2" },
-    { name = "structlog", specifier = ">=26.1.0" },
+    { name = "structlog", specifier = ">=24" },
 ]
 
 [[package]]
@@ -345,7 +345,7 @@ requires-dist = [
     { name = "asec-core", editable = "packages/asec-core" },
     { name = "opentelemetry-api", specifier = ">=1.27" },
     { name = "pydantic", specifier = ">=2.7" },
-    { name = "structlog", specifier = ">=26.1.0" },
+    { name = "structlog", specifier = ">=24" },
 ]
 provides-extras = ["aioboto3"]
 
@@ -375,7 +375,7 @@ requires-dist = [
     { name = "opentelemetry-api", specifier = ">=1.27" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "python-on-whales", specifier = ">=0.81.0" },
-    { name = "structlog", specifier = ">=26.1.0" },
+    { name = "structlog", specifier = ">=24" },
 ]
 provides-extras = ["boto3"]
 
@@ -395,7 +395,7 @@ requires-dist = [
     { name = "opentelemetry-api", specifier = ">=1.27" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6" },
-    { name = "structlog", specifier = ">=26.1.0" },
+    { name = "structlog", specifier = ">=24" },
 ]
 
 [[package]]
@@ -414,7 +414,7 @@ requires-dist = [
     { name = "opentelemetry-api", specifier = ">=1.27" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6" },
-    { name = "structlog", specifier = ">=26.1.0" },
+    { name = "structlog", specifier = ">=24" },
 ]
 
 [[package]]
