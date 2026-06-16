@@ -34,8 +34,8 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(@astrojs/starlight@0.40.0(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0))
       starlight-page-actions:
-        specifier: ^0.6.0
-        version: 0.6.0(@astrojs/starlight@0.40.0(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4))
+        specifier: ^0.6.1
+        version: 0.6.1(@astrojs/starlight@0.40.0(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4))
     devDependencies:
       sharp:
         specifier: ^0.34.5
@@ -1996,8 +1996,8 @@ packages:
       '@astrojs/starlight': '>=0.38.0'
       astro: ^6.0.0
 
-  starlight-page-actions@0.6.0:
-    resolution: {integrity: sha512-CBVFLaG2Dc9Q2CgF5tO8oobYgddGuY87ytLFu7rpdWeJNpx50eGMGPruIPQIeRLd28ZV9VDt0pPRKpP4ssYVZg==}
+  starlight-page-actions@0.6.1:
+    resolution: {integrity: sha512-OFqHR1J2ZbVaZ+useCatJJemN5j/Q2aBNeDMZ3cd55aQ9c2liQ79Jcl31I5TL7aAPNAt9LyUJjuNq40L6uxn5g==}
     engines: {node: ^22.0.0 || >=24.0.0}
     peerDependencies:
       '@astrojs/starlight': '>=0.36.0'
@@ -2187,8 +2187,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  vite-plugin-static-copy@4.1.0:
-    resolution: {integrity: sha512-9XOarNV7LgP0KBB7AApxdgFikLXx3daZdqjC3AevYsL6MrUH62zphonLUs2a6LZc1HN1GY+vQdheZ8VVJb6dQQ==}
+  vite-plugin-static-copy@4.1.1:
+    resolution: {integrity: sha512-GrlA8YklrAfSyxJ4M3fdQLOo9oNkp56IM9FYgX/WtEgeIFkPwhu4wzpufBCIuNKCa6Fn77FkRdYxkHqV0FwjAw==}
     engines: {node: ^22.0.0 || >=24.0.0}
     peerDependencies:
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -4903,11 +4903,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-page-actions@0.6.0(@astrojs/starlight@0.40.0(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4)):
+  starlight-page-actions@0.6.1(@astrojs/starlight@0.40.0(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4)):
     dependencies:
       '@astrojs/starlight': 0.40.0(astro@6.4.7(@types/node@24.12.4)(rollup@4.62.0))
       astro: 6.4.7(@types/node@24.12.4)(rollup@4.62.0)
-      vite-plugin-static-copy: 4.1.0(vite@7.3.5(@types/node@24.12.4))
+      vite-plugin-static-copy: 4.1.1(vite@7.3.5(@types/node@24.12.4))
       vite-plugin-virtual: 0.5.0(vite@7.3.5(@types/node@24.12.4))
     transitivePeerDependencies:
       - vite
@@ -5071,7 +5071,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-static-copy@4.1.0(vite@7.3.5(@types/node@24.12.4)):
+  vite-plugin-static-copy@4.1.1(vite@7.3.5(@types/node@24.12.4)):
     dependencies:
       chokidar: 3.6.0
       p-map: 7.0.4
