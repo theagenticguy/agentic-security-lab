@@ -28,7 +28,7 @@
     ],
     "overrides": {
       "esbuild": ">=0.28.1",
-      "dompurify": ">=3.4.9"
+      "dompurify": ">=3.4.11"
     }
   }
 }
