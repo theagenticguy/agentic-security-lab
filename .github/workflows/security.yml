@@ -67,7 +67,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
         with:
           enable-cache: true
       - name: Run bandit
@@ -89,7 +89,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
         with:
           enable-cache: true
       - name: Run pip-audit
@@ -137,7 +137,7 @@ jobs:
         # uploading is just for the Security tab UI, which doesn't exist on
         # private without GHAS. Auto-enables when we flip the repo public.
         if: ${{ github.event.repository.visibility == 'public' }}
-        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
         with:
           sarif_file: trivy-results.sarif
           category: trivy-fs

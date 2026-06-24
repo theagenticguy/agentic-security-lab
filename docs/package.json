@@ -11,15 +11,15 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/starlight": "^0.40.0",
-    "astro": "^6.4.7",
-    "astro-mermaid": "^2.0.2",
+    "astro": "^6.4.8",
+    "astro-mermaid": "^2.0.4",
     "mermaid": "^11.15.0",
     "remark-gfm": "^4.0.1",
     "starlight-llms-txt": "^0.10.0",
     "starlight-page-actions": "^0.6.1"
   },
   "devDependencies": {
-    "sharp": "^0.34.5"
+    "sharp": "^0.35.2"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
