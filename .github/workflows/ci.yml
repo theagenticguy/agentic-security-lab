@@ -37,7 +37,7 @@ jobs:
           cache: true
 
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
         with:
           enable-cache: true
 
@@ -60,7 +60,7 @@ jobs:
           install: true
           cache: true
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
         with:
           enable-cache: true
       - run: uv sync --locked --all-packages
@@ -82,7 +82,7 @@ jobs:
           install: true
           cache: true
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
         with:
           enable-cache: true
       - run: uv sync --locked --all-packages
@@ -104,7 +104,7 @@ jobs:
           install: true
           cache: true
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v6
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
         with:
           enable-cache: true
       - run: uv sync --locked --all-packages
