@@ -34,8 +34,8 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(@astrojs/starlight@0.40.0(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0))
       starlight-page-actions:
-        specifier: ^0.6.1
-        version: 0.6.1(@astrojs/starlight@0.40.0(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4))
+        specifier: ^0.6.2
+        version: 0.6.2(@astrojs/starlight@0.40.0(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4))
     devDependencies:
       sharp:
         specifier: ^0.35.2
@@ -2140,8 +2140,8 @@ packages:
       '@astrojs/starlight': '>=0.38.0'
       astro: ^6.0.0
 
-  starlight-page-actions@0.6.1:
-    resolution: {integrity: sha512-OFqHR1J2ZbVaZ+useCatJJemN5j/Q2aBNeDMZ3cd55aQ9c2liQ79Jcl31I5TL7aAPNAt9LyUJjuNq40L6uxn5g==}
+  starlight-page-actions@0.6.2:
+    resolution: {integrity: sha512-Mr4ZpvxTAbofvW8L08inl0wdeHrjGP+Kujro7TfTMYvw1prrWBhIGQJe/ykAK16zwG1eeCl+vzYieGcwH7tILg==}
     engines: {node: ^22.0.0 || >=24.0.0}
     peerDependencies:
       '@astrojs/starlight': '>=0.36.0'
@@ -5187,7 +5187,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-page-actions@0.6.1(@astrojs/starlight@0.40.0(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4)):
+  starlight-page-actions@0.6.2(@astrojs/starlight@0.40.0(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0)))(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4)):
     dependencies:
       '@astrojs/starlight': 0.40.0(astro@6.4.8(@types/node@24.12.4)(rollup@4.62.0))
       astro: 6.4.8(@types/node@24.12.4)(rollup@4.62.0)
