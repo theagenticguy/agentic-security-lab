@@ -7,7 +7,7 @@ dependencies = [
     "pydantic>=2.7",
     "bm25s>=0.2",
     "structlog>=24",
-    "opentelemetry-api>=1.27",
+    "opentelemetry-api>=1.44.0",
 ]
 
 [build-system]

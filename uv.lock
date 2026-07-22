@@ -295,7 +295,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "bm25s", specifier = ">=0.2" },
-    { name = "opentelemetry-api", specifier = ">=1.27" },
+    { name = "opentelemetry-api", specifier = ">=1.44.0" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "structlog", specifier = ">=24" },
 ]
@@ -331,7 +331,7 @@ requires-dist = [
     { name = "claude-agent-sdk" },
     { name = "cryptography", specifier = ">=43" },
     { name = "cyclopts", specifier = ">=3" },
-    { name = "opentelemetry-api", specifier = ">=1.27" },
+    { name = "opentelemetry-api", specifier = ">=1.44.0" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2" },
     { name = "structlog", specifier = ">=24" },
@@ -359,7 +359,7 @@ requires-dist = [
     { name = "aioboto3", marker = "extra == 'aioboto3'" },
     { name = "aiosqlite", specifier = ">=0.20" },
     { name = "asec-core", editable = "packages/asec-core" },
-    { name = "opentelemetry-api", specifier = ">=1.27" },
+    { name = "opentelemetry-api", specifier = ">=1.44.0" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "structlog", specifier = ">=24" },
 ]
@@ -388,7 +388,7 @@ requires-dist = [
     { name = "anyio", specifier = ">=4" },
     { name = "asec-core", editable = "packages/asec-core" },
     { name = "boto3", marker = "extra == 'boto3'" },
-    { name = "opentelemetry-api", specifier = ">=1.27" },
+    { name = "opentelemetry-api", specifier = ">=1.44.0" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "python-on-whales", specifier = ">=0.81.0" },
     { name = "structlog", specifier = ">=24" },
@@ -408,7 +408,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "opentelemetry-api", specifier = ">=1.27" },
+    { name = "opentelemetry-api", specifier = ">=1.44.0" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6" },
     { name = "structlog", specifier = ">=24" },
@@ -427,7 +427,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "opentelemetry-api", specifier = ">=1.27" },
+    { name = "opentelemetry-api", specifier = ">=1.44.0" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6" },
     { name = "structlog", specifier = ">=24" },
@@ -1937,14 +1937,14 @@ wheels = [
 
 [[package]]
 name = "opentelemetry-api"
-version = "1.42.1"
+version = "1.44.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b4/1c/125e1c936c0873796771b7f04f6c93b9f1bf5d424cea90fda94a99f61da8/opentelemetry_api-1.42.1.tar.gz", hash = "sha256:56c63bea9f77b62856be8c47600474acad853b2924b99b1687c4cb6297166716", size = 72296, upload-time = "2026-05-21T16:32:49.335Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ee/8b/aa9e2d8b8dfa7c946f7dec5d1f8f6ba8eca062f43509a06bdb5ce93d26c0/opentelemetry_api-1.44.0.tar.gz", hash = "sha256:67647e5e9566edcf421166fdf022b3537f818635daa852b289e34604dc6fb33a", size = 72406, upload-time = "2026-07-16T15:25:32.678Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a3/ca/9520cc1f3dfbbd03ac5903bbf55833e257bc64b1cf30fa8b0d6df374d821/opentelemetry_api-1.42.1-py3-none-any.whl", hash = "sha256:51a69edacadbc03a8950ace1c4c21099cacc538820ac2c9e36277e78cebba714", size = 61311, upload-time = "2026-05-21T16:32:28.822Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/6f/a04e900f465ff3221ccc395522503e2d10e79fa21f2723c8e177aae1e0d1/opentelemetry_api-1.44.0-py3-none-any.whl", hash = "sha256:94b98c893a91b88657eaac1e3ba89618cdb85be6918196705354f34728b2cdef", size = 60018, upload-time = "2026-07-16T15:25:11.657Z" },
 ]
 
 [[package]]
