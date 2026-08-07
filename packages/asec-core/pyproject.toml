@@ -9,7 +9,7 @@ dependencies = [
     "pydantic-settings>=2",
     "structlog>=24",
     "opentelemetry-api>=1.27",
-    "cryptography>=43",
+    "cryptography>=50.0.0",
     "cyclopts>=3",
     "asec-memory",
     "asec-sandbox",
