@@ -9,3 +9,10 @@ packages: []
 allowBuilds:
   esbuild: true
   sharp: true
+
+overrides:
+  esbuild: ">=0.28.1"
+  dompurify: ">=3.4.12"
+  js-yaml: "4.3.0"
+  svgo: ">=4.0.2"
+  postcss: ">=8.5.18"
