@@ -37,8 +37,8 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(@astrojs/starlight@0.40.0(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0)))(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0))
       starlight-page-actions:
-        specifier: ^0.6.1
-        version: 0.6.1(@astrojs/starlight@0.40.0(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0)))(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0))
+        specifier: ^0.7.0
+        version: 0.7.0(@astrojs/starlight@0.40.0(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0)))(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0))(vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1))
     devDependencies:
       sharp:
         specifier: ^0.35.3
@@ -2272,8 +2272,8 @@ packages:
     resolution: {integrity: sha512-7cIXg/Z0M5WZRblrsOla88S4wAK+zOQQWeBYfV3qJuJXMr+LnbYjaadrFaS0JILfEDPVqHyKnZ1Z/1d6J9VVUw==}
     engines: {node: '>=20'}
 
-  p-map@7.0.4:
-    resolution: {integrity: sha512-tkAQEw8ysMzmkhgw8k+1U/iPhWNhykKnSk4Rd5zLoPJCuJaGRPo6YposrZgaxHKzDHdDWWZvE/Sk7hsL2X/CpQ==}
+  p-map@7.0.6:
+    resolution: {integrity: sha512-I4Prw6ivkd6p8PiYR1tXASOAOBzIJwu0TB7fqaX0c/8c3QAehNYmX57EijyGGGBt3c/BIowGwV03RVBtXvHEVg==}
     engines: {node: '>=18'}
 
   p-queue@9.3.0:
@@ -2535,8 +2535,8 @@ packages:
       '@astrojs/starlight': '>=0.38.0'
       astro: ^6.0.0
 
-  starlight-page-actions@0.6.1:
-    resolution: {integrity: sha512-OFqHR1J2ZbVaZ+useCatJJemN5j/Q2aBNeDMZ3cd55aQ9c2liQ79Jcl31I5TL7aAPNAt9LyUJjuNq40L6uxn5g==}
+  starlight-page-actions@0.7.0:
+    resolution: {integrity: sha512-zZFtBB1x5KKfgh/P0iki0JJleaAu2I0isnqze1B2ThPMlhUrZEmMyHouq7Altff6mmiSSQRvAhHGK7kP5xwLdQ==}
     engines: {node: ^22.0.0 || >=24.0.0}
     peerDependencies:
       '@astrojs/starlight': '>=0.36.0'
@@ -2561,6 +2561,9 @@ packages:
     resolution: {integrity: sha512-ekx94z1rRc5LDi6oSUaeRnYhd0UOJxdtQCL2rF8xpWxD3TPAsISWOrxezqGovqS38GRZOdpDfvQe3ts6F7nsng==}
     engines: {node: '>=16'}
     hasBin: true
+
+  tidymd@0.1.0:
+    resolution: {integrity: sha512-zgwjLyj5KvZSNtoAFZgq7AVXuztNamC69/NNPjd4LJ/DnF3l4kCCgj9u82TO+LbZ7F+lOo8Vc+FPMfBFG4nz+Q==}
 
   tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
@@ -2736,46 +2739,6 @@ packages:
     resolution: {integrity: sha512-vKqZRK1k67VvMeUyvXNAboVwBHcdNuULR/+s7x+WVohM/i2kz2ZiCuHlp4JdQe2DjQ0Cnb9wZJH95BgpZ3lJvw==}
     peerDependencies:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-
-  vite@7.3.5:
-    resolution: {integrity: sha512-KuOaNhcnGFN2zIPGA7wRmzF+lJA1sea7rHq17aiJ++9lzY1WWG6Jpwqwe1KNbRVPIqHmr8GLYx7jbrQcN/7/ww==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^20.19.0 || >=22.12.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      lightningcss: ^1.21.0
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
 
   vite@8.1.5:
     resolution: {integrity: sha512-7ULLwsCdYx/nRyrpiEwvqb5TFHrMVZyBt+rg/OAXT7rgj/z+DtTDyKFeLAdDkubDVDKD8jOsndmy7m55XcfUsw==}
@@ -4521,10 +4484,6 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.4
 
-  fdir@6.5.0(picomatch@4.0.5):
-    optionalDependencies:
-      picomatch: 4.0.5
-
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
@@ -5450,7 +5409,7 @@ snapshots:
     dependencies:
       yocto-queue: 1.2.2
 
-  p-map@7.0.4: {}
+  p-map@7.0.6: {}
 
   p-queue@9.3.0:
     dependencies:
@@ -5774,6 +5733,7 @@ snapshots:
       '@rollup/rollup-win32-x64-gnu': 4.62.0
       '@rollup/rollup-win32-x64-msvc': 4.62.0
       fsevents: 2.3.3
+    optional: true
 
   roughjs@4.6.6:
     dependencies:
@@ -5922,12 +5882,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-page-actions@0.6.1(@astrojs/starlight@0.40.0(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0)))(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0))(vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0)):
+  starlight-page-actions@0.7.0(@astrojs/starlight@0.40.0(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0)))(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0))(vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1)):
     dependencies:
       '@astrojs/starlight': 0.40.0(astro@7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0))
       astro: 7.1.4(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@24.12.4)(rollup@4.62.0)
-      vite-plugin-static-copy: 4.1.1(vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0))
-      vite-plugin-virtual: 0.5.0(vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0))
+      tidymd: 0.1.0
+      vite-plugin-static-copy: 4.1.1(vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1))
+      vite-plugin-virtual: 0.5.0(vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1))
     transitivePeerDependencies:
       - vite
 
@@ -5957,6 +5918,8 @@ snapshots:
       csso: 5.0.5
       picocolors: 1.1.1
       sax: 1.6.0
+
+  tidymd@0.1.0: {}
 
   tiny-inflate@1.0.3: {}
 
@@ -6090,30 +6053,17 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-static-copy@4.1.1(vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0)):
+  vite-plugin-static-copy@4.1.1(vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1)):
     dependencies:
       chokidar: 3.6.0
-      p-map: 7.0.4
+      p-map: 7.0.6
       picocolors: 1.1.1
       tinyglobby: 0.2.17
-      vite: 7.3.5(@types/node@24.12.4)(lightningcss@1.33.0)
+      vite: 8.1.5(@types/node@24.12.4)(esbuild@0.28.1)
 
-  vite-plugin-virtual@0.5.0(vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0)):
+  vite-plugin-virtual@0.5.0(vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1)):
     dependencies:
-      vite: 7.3.5(@types/node@24.12.4)(lightningcss@1.33.0)
-
-  vite@7.3.5(@types/node@24.12.4)(lightningcss@1.33.0):
-    dependencies:
-      esbuild: 0.28.1
-      fdir: 6.5.0(picomatch@4.0.5)
-      picomatch: 4.0.5
-      postcss: 8.5.24
-      rollup: 4.62.0
-      tinyglobby: 0.2.17
-    optionalDependencies:
-      '@types/node': 24.12.4
-      fsevents: 2.3.3
-      lightningcss: 1.33.0
+      vite: 8.1.5(@types/node@24.12.4)(esbuild@0.28.1)
 
   vite@8.1.5(@types/node@24.12.4)(esbuild@0.28.1):
     dependencies:
