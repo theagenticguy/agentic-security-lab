@@ -16,7 +16,7 @@ dependencies = [
     "asec-threat-model",
     "asec-skills",
     "asec-confidence",
-    "anyio>=4.13.0",
+    "anyio>=4.14.2",
 ]
 
 [build-system]
